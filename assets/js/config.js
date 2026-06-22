@@ -1,4 +1,4 @@
-window.JORLAN_TRAINING_CONFIG = {
-  SUPABASE_URL: "COLE_AQUI_A_PROJECT_URL_DO_SUPABASE",
-  SUPABASE_ANON_KEY: "COLE_AQUI_A_ANON_PUBLIC_KEY_DO_SUPABASE"
+window.APP_CONFIG = {
+  SUPABASE_URL: "https://xxxxxxxxxxxx.supabase.co",
+  SUPABASE_ANON_KEY: "sua-chave-publica-aqui"
 };

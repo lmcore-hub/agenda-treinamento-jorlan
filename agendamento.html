@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inscrição | Agenda de Treinamento</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body data-page="agendamento">
+<header class="site-header">
+  <div class="wrapper header-inner">
+    <a class="brand" href="index.html" aria-label="Voltar para a página inicial">
+      <img src="assets/logo-jorlan.png" alt="Grupo Jorlan" />
+      <span class="brand-divider"></span>
+      <span class="brand-title">Agenda de Treinamento</span>
+    </a>
+    <nav class="nav-actions" aria-label="Navegação principal">
+      <a class="btn ghost small" href="agendamento.html">Inscrição</a>
+      <a class="btn primary small" href="index.html#instrutor">Instrutor</a>
+    </nav>
+  </div>
+</header>
+<main class="page-main">
+
+  <div class="wrapper">
+    <div id="appStatus"></div>
+    <section class="page-head">
+      <div class="page-title">
+        <span class="kicker light">Inscrição</span>
+        <h1>Escolha uma turma aberta</h1>
+        <p>O calendário abaixo exibe somente os dias e horários liberados pelo instrutor, com a quantidade de vagas disponíveis em cada turma.</p>
+      </div>
+      <div class="toolbar">
+        <a class="btn ghost" href="index.html">Voltar</a>
+      </div>
+    </section>
+
+    <section class="calendar-shell">
+      <div class="calendar-grid" id="publicSlots">
+        <div class="loading">Carregando turmas abertas...</div>
+      </div>
+    </section>
+  </div>
+
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

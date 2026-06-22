@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agenda de Treinamento | Grupo Jorlan</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body data-page="home">
+<header class="site-header">
+  <div class="wrapper header-inner">
+    <a class="brand" href="index.html" aria-label="Voltar para a página inicial">
+      <img src="assets/logo-jorlan.png" alt="Grupo Jorlan" />
+      <span class="brand-divider"></span>
+      <span class="brand-title">Agenda de Treinamento</span>
+    </a>
+    <nav class="nav-actions" aria-label="Navegação principal">
+      <a class="btn ghost small" href="agendamento.html">Inscrição</a>
+      <a class="btn primary small" href="index.html#instrutor">Instrutor</a>
+    </nav>
+  </div>
+</header>
+<main class="page-main">
+
+  <div class="wrapper">
+    <div id="loginStatus"></div>
+    <section class="hero">
+      <div class="hero-panel">
+        <div>
+          <span class="kicker">Grupo Jorlan · Treinamento Comercial</span>
+          <h1>Agenda central de treinamentos</h1>
+          <p class="lead">Escolha a opção de acesso para consultar turmas disponíveis, realizar inscrições ou administrar a agenda do instrutor.</p>
+        </div>
+        <div class="hero-metrics">
+          <div class="metric"><strong>01</strong><span>inscrição guiada</span></div>
+          <div class="metric"><strong>02</strong><span>controle do instrutor</span></div>
+          <div class="metric"><strong>03</strong><span>exportação da agenda</span></div>
+        </div>
+      </div>
+
+      <div class="side-stack">
+        <section class="card entry-card">
+          <div>
+            <div class="entry-icon">A</div>
+            <h2>Fazer inscrição</h2>
+            <p>Área para gestores consultarem as turmas abertas, visualizarem vagas disponíveis e cadastrarem participantes.</p>
+          </div>
+          <a class="btn primary full" href="agendamento.html">Ver dias disponíveis</a>
+        </section>
+
+        <section class="login-card" id="instrutor">
+          <h2>Acesso do instrutor</h2>
+          <p>Área restrita para bloquear turmas, liberar agenda, acompanhar inscritos e exportar dados.</p>
+          <form class="form" id="adminLoginForm">
+            <label>
+              Usuário
+              <input name="username" autocomplete="username" required placeholder="Ex.: instrutor" />
+            </label>
+            <label>
+              Senha
+              <input name="password" type="password" autocomplete="current-password" required placeholder="Senha do painel" />
+            </label>
+            <button class="btn primary full" type="submit">Entrar no painel</button>
+          </form>
+          <div class="alert" id="loginAlert"></div>
+          <p class="footer-note">A senha é validada no banco central Supabase. Não use service_role key no GitHub.</p>
+        </section>
+      </div>
+    </section>
+  </div>
+
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

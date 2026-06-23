@@ -39,14 +39,59 @@
         <form class="form" id="bookingForm">
           <div class="form-grid">
             <label>Nome completo<input name="name" required minlength="2" maxlength="120" placeholder="Nome do participante" /></label>
-            <label>Cargo<input name="role" required minlength="2" maxlength="90" placeholder="Ex.: Vendedor, Gerente" /></label>
+            <label>Cargo><select name="role" required>
+                <option value="">Selecione o cargo</option>
+                <option>Vendedor</option>
+                <option>Supervisor</option>
+                <option>Gerente</option>
+              </select></label>
           </div>
           <div class="form-grid">
             <label>E-mail<input name="email" type="email" required maxlength="160" placeholder="nome@empresa.com.br" /></label>
             <label>Telefone celular<input name="phone" type="tel" required maxlength="16" placeholder="(61) 99999-9999" /></label>
           </div>
           <div class="form-grid">
-            <label>Loja<input name="store" required minlength="2" maxlength="100" placeholder="Ex.: Jorlan Chevrolet Lago das Rosas" /></label>
+            <label>Loja><select name="store" required>
+                <option value="">Selecione a loja</option>
+                <optgroup label="Brasília">
+                  <option value="JORLAN PLAZA ASA NORTE" data-city="Brasília">JORLAN PLAZA ASA NORTE</option>
+                  <option value="JORLAN PLAZA ASA TAGUATINGA" data-city="Brasília">JORLAN PLAZA ASA TAGUATINGA</option>
+                  <option value="JORLAN GWM SIA" data-city="Brasília">JORLAN GWM SIA</option>
+                  <option value="JORLAN GWM AEROPORTO" data-city="Brasília">JORLAN GWM AEROPORTO</option>
+                  <option value="JORLAN GWM ASA NORTE" data-city="Brasília">JORLAN GWM ASA NORTE</option>
+                  <option value="JORLAN FRANCE TAGUATINGA" data-city="Brasília">JORLAN FRANCE TAGUATINGA</option>
+                  <option value="JORLAN FRANCE COLORADO" data-city="Brasília">JORLAN FRANCE COLORADO</option>
+                  <option value="JORLAN FRANCE GAMA" data-city="Brasília">JORLAN FRANCE GAMA</option>
+                  <option value="JORLAN CHEVROLET SIA" data-city="Brasília">JORLAN CHEVROLET SIA</option>
+                  <option value="JORLAN CHEVROLET ASA NORTE" data-city="Brasília">JORLAN CHEVROLET ASA NORTE</option>
+                  <option value="JORLAN CHEVROLET VALPARAISO" data-city="Brasília">JORLAN CHEVROLET VALPARAISO</option>
+                  <option value="JORLAN ORCA TAGUATINGA" data-city="Brasília">JORLAN ORCA TAGUATINGA</option>
+                  <option value="JORLAN ORCA GAMA" data-city="Brasília">JORLAN ORCA GAMA</option>
+                  <option value="JORLAN GAC SIA" data-city="Brasília">JORLAN GAC SIA</option>
+                  <option value="JORLAN GAC AEROPORTO" data-city="Brasília">JORLAN GAC AEROPORTO</option>
+                  <option value="JORLAN GEELY AEROPORTO" data-city="Brasília">JORLAN GEELY AEROPORTO</option>
+                  <option value="JORLAN GEELY SIA" data-city="Brasília">JORLAN GEELY SIA</option>
+                  <option value="JORLAN HARLEY" data-city="Brasília">JORLAN HARLEY</option>
+                </optgroup>
+                <optgroup label="Belo Horizonte">
+                  <option value="JORLAN CHEVROLET BARÃO" data-city="Belo Horizonte">JORLAN CHEVROLET BARÃO</option>
+                  <option value="JORLAN CHEVROLET CATALÃO" data-city="Belo Horizonte">JORLAN CHEVROLET CATALÃO</option>
+                  <option value="JORLAN CHEVROLET EXPRESSA" data-city="Belo Horizonte">JORLAN CHEVROLET EXPRESSA</option>
+                  <option value="JORLAN FRANCE SAVASSI" data-city="Belo Horizonte">JORLAN FRANCE SAVASSI</option>
+                  <option value="JORLAN FRANCE PAMPULHA" data-city="Belo Horizonte">JORLAN FRANCE PAMPULHA</option>
+                  <option value="JORLAN FRANCE BARÃO" data-city="Belo Horizonte">JORLAN FRANCE BARÃO</option>
+                  <option value="JORLAN GEELY BARÃO" data-city="Belo Horizonte">JORLAN GEELY BARÃO</option>
+                  <option value="JORLAN KIA PAMPULHA" data-city="Belo Horizonte">JORLAN KIA PAMPULHA</option>
+                  <option value="JORLAN FRANCE PEUGEOT" data-city="Belo Horizonte">JORLAN FRANCE PEUGEOT</option>
+                  <option value="JORLAN FRANCE CITROEN" data-city="Belo Horizonte">JORLAN FRANCE CITROEN</option>
+                  <option value="JORLAN GAC PAMPULHA" data-city="Belo Horizonte">JORLAN GAC PAMPULHA</option>
+                  <option value="JORLAN GAC BARÃO" data-city="Belo Horizonte">JORLAN GAC BARÃO</option>
+                </optgroup>
+                <optgroup label="Goiânia">
+                  <option value="JORLAN CHEVROLET LAGO DAS ROSAS" data-city="Goiânia">JORLAN CHEVROLET LAGO DAS ROSAS</option>
+                  <option value="JORLAN CHEVROLET PIO XII" data-city="Goiânia">JORLAN CHEVROLET PIO XII</option>
+                </optgroup>
+              </select></label>
             <label>Cidade / praça<select name="city" required><option value="">Selecione</option><option>Brasília</option><option>Belo Horizonte</option><option>Goiânia</option></select></label>
           </div>
           <button class="btn primary" type="submit">Confirmar inscrição</button>

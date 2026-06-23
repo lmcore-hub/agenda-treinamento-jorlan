@@ -436,3 +436,97 @@ table.data-table { width: 100%; border-collapse: collapse; min-width: 640px; }
   color: var(--muted);
   font-size: 0.95rem;
 }
+
+
+/* Home atualizado */
+.home-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(320px, .72fr);
+  gap: 24px;
+  align-items: stretch;
+}
+.signup-showcase {
+  display: grid;
+  grid-template-columns: minmax(280px, .9fr) minmax(360px, 1.1fr);
+  gap: 22px;
+  align-items: center;
+  background: rgba(255,255,255,.92);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-soft);
+  padding: 28px;
+  overflow: hidden;
+  min-height: 488px;
+}
+.signup-copy {
+  display: grid;
+  align-content: center;
+  gap: 18px;
+  padding: 10px 10px 10px 22px;
+}
+.signup-copy h1 {
+  color: var(--ink);
+  margin: 0;
+  font-size: clamp(34px, 4vw, 58px);
+  line-height: .94;
+  letter-spacing: -.06em;
+}
+.signup-copy p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.55;
+  max-width: 420px;
+}
+.signup-cta {
+  width: min(100%, 360px);
+  min-height: 56px;
+  font-size: 15px;
+}
+.signup-media {
+  height: 100%;
+  min-height: 430px;
+  border-radius: 26px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #f7f7f7, #ececec);
+}
+.signup-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.brand-banner-card {
+  margin-top: 22px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
+  background: rgba(255,255,255,.88);
+}
+.brand-banner-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+#administrador.login-card {
+  min-height: 488px;
+  display: flex;
+  flex-direction: column;
+}
+#administrador .form { margin-top: 18px; }
+#administrador .footer-note { margin-top: auto; padding-top: 12px; }
+
+@media (max-width: 1100px) {
+  .home-top { grid-template-columns: 1fr; }
+  #administrador.login-card { min-height: 0; }
+}
+@media (max-width: 760px) {
+  .signup-showcase {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    padding: 20px;
+  }
+  .signup-copy { padding: 0; }
+  .signup-media { min-height: 320px; }
+}

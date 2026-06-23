@@ -17,6 +17,7 @@
     <nav class="nav-actions" aria-label="Navegação principal">
       <a class="btn ghost small" href="agendamento.html">Inscrição</a>
       <a class="btn primary small" href="painel-administrador.html">Administrador</a>
+      <button class="btn danger small" type="button" data-logout-admin>Sair do administrativo</button>
     </nav>
   </div>
 </header>
@@ -27,14 +28,15 @@
       <div class="page-title">
         <span class="kicker light">Painel administrativo</span>
         <h1>Calendário e gestão de acessos</h1>
-        <p>Libere manualmente os dias de treinamento, bloqueie datas quando necessário, acompanhe inscritos, exporte a agenda e gerencie administradores.</p>
+        <p>Controle as turmas abertas, bloqueie horários indisponíveis, acompanhe inscritos, exporte a agenda e gerencie administradores.</p>
         <div class="admin-meta" id="adminIdentity"></div>
       </div>
       <div class="toolbar">
         <button class="btn ghost" id="refreshAdmin" type="button">Atualizar</button>
         <button class="btn ghost" id="exportCsv" type="button">Exportar CSV</button>
+        <button class="btn ghost" id="previousWeek" type="button">Voltar -1 semana</button>
         <button class="btn primary" id="extendWeek" type="button">Mostrar +1 semana</button>
-        <button class="btn danger" id="logoutAdmin" type="button">Sair</button>
+        <button class="btn danger" id="logoutAdmin" type="button" data-logout-admin>Sair do administrativo</button>
       </div>
     </section>
 

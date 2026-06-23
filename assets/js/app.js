@@ -5,6 +5,7 @@
   const ADMIN_TOKEN_KEY = "jorlanTrainingAdminToken";
   let supabaseClient = null;
   let adminState = null;
+  let adminViewEndDate = null;
 
   function $(selector, root = document) { return root.querySelector(selector); }
   function $all(selector, root = document) { return Array.from(root.querySelectorAll(selector)); }
@@ -41,6 +42,27 @@
     return new Date(y, m - 1, d);
   }
 
+  function toIsoDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  function addDaysIso(dateStr, days) {
+    const date = parseLocalDate(dateStr);
+    date.setDate(date.getDate() + days);
+    return toIsoDate(date);
+  }
+
+  function maxIsoDate(a, b) {
+    return parseLocalDate(a) >= parseLocalDate(b) ? a : b;
+  }
+
+  function formatShortDate(dateStr) {
+    return parseLocalDate(dateStr).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+  }
+
   function formatFullDate(dateStr) {
     return parseLocalDate(dateStr).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
   }
@@ -56,7 +78,10 @@
 
   function getAdminToken() { return sessionStorage.getItem(ADMIN_TOKEN_KEY); }
   function setAdminToken(token) { sessionStorage.setItem(ADMIN_TOKEN_KEY, token); }
-  function clearAdminToken() { sessionStorage.removeItem(ADMIN_TOKEN_KEY); }
+  function clearAdminToken() {
+    sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+    try { localStorage.removeItem(ADMIN_TOKEN_KEY); } catch (_) {}
+  }
 
   function alertBox(id, type, message) {
     const el = document.getElementById(id);
@@ -269,10 +294,11 @@
     if (refreshBtn) refreshBtn.addEventListener("click", loadAdminState);
     const exportBtn = document.getElementById("exportCsv");
     if (exportBtn) exportBtn.addEventListener("click", exportAdminCsv);
+    const previousBtn = document.getElementById("previousWeek");
+    if (previousBtn) previousBtn.addEventListener("click", previousWeek);
     const extendBtn = document.getElementById("extendWeek");
     if (extendBtn) extendBtn.addEventListener("click", extendWeek);
-    const logoutBtn = document.getElementById("logoutAdmin");
-    if (logoutBtn) logoutBtn.addEventListener("click", logoutAdmin);
+    $all("[data-logout-admin], #logoutAdmin").forEach((btn) => btn.addEventListener("click", logoutAdmin));
 
     const createUserForm = document.getElementById("createAdminUserForm");
     if (createUserForm) createUserForm.addEventListener("submit", createAdminUser);
@@ -285,6 +311,7 @@
     if (container) container.innerHTML = '<div class="loading">Carregando calendário administrativo...</div>';
     try {
       adminState = await rpc("training_admin_get_state", { p_session_token: getAdminToken() });
+      syncAdminViewEndDate(adminState);
       renderAdminState(adminState);
     } catch (error) {
       clearAdminToken();
@@ -293,7 +320,30 @@
     }
   }
 
+
+  function syncAdminViewEndDate(state) {
+    if (!state || !state.horizonDate) return;
+    if (!adminViewEndDate || parseLocalDate(adminViewEndDate) > parseLocalDate(state.horizonDate)) {
+      adminViewEndDate = state.horizonDate;
+    }
+  }
+
+  function getVisibleAdminSlots(state) {
+    const slots = state && state.slots ? state.slots : [];
+    if (!adminViewEndDate) return slots;
+    return slots.filter((slot) => parseLocalDate(slot.date) <= parseLocalDate(adminViewEndDate));
+  }
+
+  function updateWeekButtons(state) {
+    const previousBtn = document.getElementById("previousWeek");
+    if (!previousBtn || !state || !state.slots || !state.slots.length || !adminViewEndDate) return;
+    const firstDate = state.slots[0].date;
+    previousBtn.disabled = parseLocalDate(adminViewEndDate) <= parseLocalDate(firstDate);
+    previousBtn.title = previousBtn.disabled ? "Você já está na primeira semana da janela carregada." : "Voltar uma semana na visualização do painel.";
+  }
+
   function renderAdminState(state) {
+    updateWeekButtons(state);
     renderSummary(state);
     renderAdminCalendar(state);
     renderAdminUsers(state);
@@ -310,7 +360,7 @@
   function renderSummary(state) {
     const box = document.getElementById("adminSummary");
     if (!box) return;
-    const slots = state && state.slots ? state.slots : [];
+    const slots = getVisibleAdminSlots(state);
     const active = slots.filter((s) => !s.blocked).length;
     const blocked = slots.filter((s) => s.blocked).length;
     const occupied = slots.reduce((sum, s) => sum + Number(s.occupied || 0), 0);
@@ -325,10 +375,11 @@
   function renderAdminCalendar(state) {
     const container = document.getElementById("adminCalendar");
     if (!container) return;
-    const slots = state && state.slots ? state.slots : [];
+    const slots = getVisibleAdminSlots(state);
     if (!slots.length) { container.innerHTML = '<div class="empty">Nenhuma turma na janela de agenda. Clique em “Mostrar +1 semana”.</div>'; return; }
     const grouped = groupByDate(slots);
-    container.innerHTML = Object.keys(grouped).map((date) => {
+    const viewInfo = adminViewEndDate ? `<div class="admin-view-info">Visualizando agenda até <strong>${escapeHtml(formatShortDate(adminViewEndDate))}</strong>. Use “Mostrar +1 semana” para avançar e “Voltar -1 semana” para retornar.</div>` : "";
+    container.innerHTML = viewInfo + Object.keys(grouped).map((date) => {
       const dateSlots = grouped[date];
       const dayOpen = dateSlots.some((s) => !s.blocked);
       const dayClosed = dateSlots.every((s) => s.blocked);
@@ -413,9 +464,20 @@
     } catch (error) { alertBox("adminAlert", "danger", escapeHtml(error.message)); }
   }
 
+  function previousWeek() {
+    if (!adminState || !adminState.slots || !adminState.slots.length) return;
+    const firstDate = adminState.slots[0].date;
+    const currentLimit = adminViewEndDate || adminState.horizonDate || adminState.slots[adminState.slots.length - 1].date;
+    const nextLimit = maxIsoDate(firstDate, addDaysIso(currentLimit, -7));
+    adminViewEndDate = nextLimit;
+    renderAdminState(adminState);
+    alertBox("adminAlert", "success", `Visualização retornou até <strong>${escapeHtml(formatFullDate(nextLimit))}</strong>. Nenhuma turma foi apagada ou bloqueada.`);
+  }
+
   async function extendWeek() {
     try {
       const newDate = await rpc("training_admin_extend_week", { p_session_token: getAdminToken() });
+      adminViewEndDate = newDate;
       await loadAdminState();
       alertBox("adminAlert", "success", `Agenda ampliada até <strong>${escapeHtml(formatFullDate(newDate))}</strong>.`);
     } catch (error) { alertBox("adminAlert", "danger", escapeHtml(error.message)); }
@@ -503,8 +565,9 @@
   async function logoutAdmin() {
     const token = getAdminToken();
     try { if (token && isConfigReady()) await rpc("training_admin_logout", { p_session_token: token }); } catch (_) {}
+    adminState = null;
     clearAdminToken();
-    window.location.href = "index.html#administrador";
+    window.location.replace("index.html#administrador");
   }
 
   function exportAdminCsv() {
@@ -532,4 +595,11 @@
     if (page === "recuperar") setupRecoveryPage();
     if (page === "painel") setupAdminPanel();
   });
+
+  window.addEventListener("pageshow", () => {
+    if (document.body && document.body.dataset.page === "painel" && !getAdminToken()) {
+      window.location.replace("index.html#administrador");
+    }
+  });
+
 })();

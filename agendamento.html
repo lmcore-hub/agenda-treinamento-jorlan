@@ -16,32 +16,25 @@
     </a>
     <nav class="nav-actions" aria-label="Navegação principal">
       <a class="btn ghost small" href="agendamento.html">Inscrição</a>
-      <a class="btn primary small" href="index.html#instrutor">Instrutor</a>
+      <a class="btn primary small" href="index.html#administrador">Administrador</a>
     </nav>
   </div>
 </header>
 <main class="page-main">
-
   <div class="wrapper">
     <div id="appStatus"></div>
     <section class="page-head">
       <div class="page-title">
         <span class="kicker light">Inscrição</span>
         <h1>Escolha uma turma aberta</h1>
-        <p>O calendário abaixo exibe somente os dias e horários liberados pelo instrutor, com a quantidade de vagas disponíveis em cada turma.</p>
+        <p>O calendário abaixo exibe somente os dias e horários liberados, com a quantidade de vagas disponíveis em cada turma.</p>
       </div>
-      <div class="toolbar">
-        <a class="btn ghost" href="index.html">Voltar</a>
-      </div>
+      <div class="toolbar"><a class="btn ghost" href="index.html">Voltar</a></div>
     </section>
-
     <section class="calendar-shell">
-      <div class="calendar-grid" id="publicSlots">
-        <div class="loading">Carregando turmas abertas...</div>
-      </div>
+      <div class="calendar-grid" id="publicSlots"><div class="loading">Carregando turmas abertas...</div></div>
     </section>
   </div>
-
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/js/config.js"></script>

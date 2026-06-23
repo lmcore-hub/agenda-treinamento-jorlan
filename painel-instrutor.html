@@ -2,53 +2,18 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="refresh" content="0; url=painel-administrador.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Painel do Instrutor | Agenda de Treinamento</title>
+  <title>Redirecionando | Agenda de Treinamento</title>
   <link rel="stylesheet" href="assets/styles.css" />
 </head>
-<body data-page="painel">
-<header class="site-header">
-  <div class="wrapper header-inner">
-    <a class="brand" href="index.html" aria-label="Voltar para a página inicial">
-      <img src="assets/logo-jorlan.png" alt="Grupo Jorlan" />
-      <span class="brand-divider"></span>
-      <span class="brand-title">Agenda de Treinamento</span>
-    </a>
-    <nav class="nav-actions" aria-label="Navegação principal">
-      <a class="btn ghost small" href="agendamento.html">Inscrição</a>
-      <a class="btn primary small" href="index.html#instrutor">Instrutor</a>
-    </nav>
-  </div>
-</header>
-<main class="page-main">
-
-  <div class="wrapper">
-    <div id="adminStatus"></div>
-    <section class="page-head">
-      <div class="page-title">
-        <span class="kicker light">Painel do instrutor</span>
-        <h1>Calendário administrativo</h1>
-        <p>Controle as turmas abertas, bloqueie horários indisponíveis, acompanhe os inscritos e exporte a agenda.</p>
-      </div>
-      <div class="toolbar">
-        <button class="btn ghost" id="refreshAdmin" type="button">Atualizar</button>
-        <button class="btn ghost" id="exportCsv" type="button">Exportar CSV</button>
-        <button class="btn primary" id="extendWeek" type="button">Abrir +1 semana</button>
-        <button class="btn danger" id="logoutAdmin" type="button">Sair</button>
-      </div>
+<body>
+  <main class="wrapper">
+    <section class="card redirect-card">
+      <h1 style="color:#111">Painel administrativo</h1>
+      <p class="muted">O painel anterior foi substituído pelo painel administrativo.</p>
+      <a class="btn primary" href="painel-administrador.html">Abrir painel administrativo</a>
     </section>
-
-    <div class="summary-grid" id="adminSummary"></div>
-    <div class="alert" id="adminAlert"></div>
-
-    <section class="admin-grid" id="adminCalendar">
-      <div class="loading">Carregando calendário administrativo...</div>
-    </section>
-  </div>
-
-</main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="assets/js/config.js"></script>
-<script src="assets/js/app.js"></script>
+  </main>
 </body>
 </html>

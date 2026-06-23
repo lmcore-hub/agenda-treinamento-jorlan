@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel Administrativo | Agenda de Treinamento</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body data-page="painel">
+<header class="site-header">
+  <div class="wrapper header-inner">
+    <a class="brand" href="index.html" aria-label="Voltar para a página inicial">
+      <img src="assets/logo-jorlan.png" alt="Grupo Jorlan" />
+      <span class="brand-divider"></span>
+      <span class="brand-title">Agenda de Treinamento</span>
+    </a>
+    <nav class="nav-actions" aria-label="Navegação principal">
+      <a class="btn ghost small" href="agendamento.html">Inscrição</a>
+      <a class="btn primary small" href="painel-administrador.html">Administrador</a>
+    </nav>
+  </div>
+</header>
+<main class="page-main">
+  <div class="wrapper">
+    <div id="adminStatus"></div>
+    <section class="page-head">
+      <div class="page-title">
+        <span class="kicker light">Painel administrativo</span>
+        <h1>Calendário e gestão de acessos</h1>
+        <p>Libere manualmente os dias de treinamento, bloqueie datas quando necessário, acompanhe inscritos, exporte a agenda e gerencie administradores.</p>
+        <div class="admin-meta" id="adminIdentity"></div>
+      </div>
+      <div class="toolbar">
+        <button class="btn ghost" id="refreshAdmin" type="button">Atualizar</button>
+        <button class="btn ghost" id="exportCsv" type="button">Exportar CSV</button>
+        <button class="btn primary" id="extendWeek" type="button">Mostrar +1 semana</button>
+        <button class="btn danger" id="logoutAdmin" type="button">Sair</button>
+      </div>
+    </section>
+
+    <div class="summary-grid" id="adminSummary"></div>
+    <div class="alert" id="adminAlert"></div>
+
+    <section class="admin-grid" id="adminCalendar"><div class="loading">Carregando calendário administrativo...</div></section>
+
+    <section class="management-shell">
+      <div class="management-grid">
+        <section class="admin-section">
+          <h2>Gestão de administradores</h2>
+          <p class="muted">Cadastre outros usuários, desative acessos e redefina senhas.</p>
+          <div class="alert" id="userAlert"></div>
+          <div id="adminUsers"></div>
+          <form class="form compact-form" id="createAdminUserForm">
+            <h3>Novo administrador</h3>
+            <div class="form-grid">
+              <label>Usuário<input name="username" required minlength="3" maxlength="60" placeholder="Ex.: gestor.bsb" /></label>
+              <label>Nome<input name="displayName" required minlength="2" maxlength="120" placeholder="Nome do administrador" /></label>
+            </div>
+            <div class="form-grid">
+              <label>E-mail<input name="email" type="email" required maxlength="160" placeholder="email@empresa.com.br" /></label>
+              <label>Senha inicial<input name="password" type="password" required minlength="8" placeholder="Mínimo 8 caracteres" /></label>
+            </div>
+            <label><input name="isSuperAdmin" type="checkbox" /> Permitir gerir outros administradores</label>
+            <button class="btn primary" type="submit">Cadastrar administrador</button>
+          </form>
+        </section>
+
+        <section class="admin-section">
+          <h2>Senhas e recuperação</h2>
+          <p class="muted">Altere sua senha ou aprove solicitações feitas pela tela “Esqueci minha senha”.</p>
+          <div class="alert" id="passwordAlert"></div>
+          <form class="form compact-form" id="changeOwnPasswordForm">
+            <h3>Alterar minha senha</h3>
+            <label>Senha atual<input name="currentPassword" type="password" required autocomplete="current-password" /></label>
+            <div class="form-grid">
+              <label>Nova senha<input name="newPassword" type="password" required minlength="8" autocomplete="new-password" /></label>
+              <label>Confirmar nova senha<input name="confirmPassword" type="password" required minlength="8" autocomplete="new-password" /></label>
+            </div>
+            <button class="btn primary" type="submit">Alterar minha senha</button>
+          </form>
+          <div class="alert" id="resetAlert"></div>
+          <h3>Solicitações pendentes</h3>
+          <div id="passwordResetRequests"></div>
+        </section>
+      </div>
+    </section>
+  </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

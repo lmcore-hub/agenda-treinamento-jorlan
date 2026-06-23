@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recuperar Senha | Agenda de Treinamento</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body data-page="recuperar">
+<header class="site-header">
+  <div class="wrapper header-inner">
+    <a class="brand" href="index.html" aria-label="Voltar para a página inicial">
+      <img src="assets/logo-jorlan.png" alt="Grupo Jorlan" />
+      <span class="brand-divider"></span>
+      <span class="brand-title">Agenda de Treinamento</span>
+    </a>
+    <nav class="nav-actions" aria-label="Navegação principal">
+      <a class="btn ghost small" href="agendamento.html">Inscrição</a>
+      <a class="btn primary small" href="index.html#administrador">Administrador</a>
+    </nav>
+  </div>
+</header>
+<main class="page-main">
+  <div class="wrapper">
+    <div id="recoveryStatus"></div>
+    <section class="card recovery-card">
+      <span class="kicker light">Recuperação de acesso</span>
+      <h1 style="color:#111">Solicitar recuperação de senha</h1>
+      <p class="muted">A solicitação será registrada no banco central. Um administrador ativo deverá aprovar e definir uma nova senha no painel.</p>
+      <form class="form" id="recoveryForm">
+        <div class="form-grid">
+          <label>Usuário<input name="username" required placeholder="Ex.: administrador" autocomplete="username" /></label>
+          <label>E-mail cadastrado<input name="email" type="email" required placeholder="email cadastrado" /></label>
+        </div>
+        <button class="btn primary" type="submit">Solicitar recuperação</button>
+      </form>
+      <div class="alert" id="recoveryAlert"></div>
+      <ul class="notice-list">
+        <li>Se todos os administradores perderam o acesso, a recuperação precisa ser feita pelo SQL no Supabase.</li>
+        <li>Este fluxo não envia e-mail automaticamente. Ele registra a solicitação para aprovação administrativa.</li>
+      </ul>
+    </section>
+  </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

@@ -16,25 +16,21 @@
     </a>
     <nav class="nav-actions" aria-label="Navegação principal">
       <a class="btn ghost small" href="agendamento.html">Inscrição</a>
-      <a class="btn primary small" href="index.html#instrutor">Instrutor</a>
+      <a class="btn primary small" href="index.html#administrador">Administrador</a>
     </nav>
   </div>
 </header>
 <main class="page-main">
-
   <div class="wrapper">
     <div id="bookingStatus"></div>
     <section class="page-head">
       <div class="page-title">
         <span class="kicker light">Cadastro do participante</span>
         <h1>Confirmar inscrição</h1>
-        <p>Preencha os dados do participante. A vaga só é garantida após a confirmação no banco central.</p>
+        <p>Preencha os dados do participante. A vaga só é garantida após confirmação no banco central.</p>
       </div>
-      <div class="toolbar">
-        <a class="btn ghost" href="agendamento.html">Trocar turma</a>
-      </div>
+      <div class="toolbar"><a class="btn ghost" href="agendamento.html">Trocar turma</a></div>
     </section>
-
     <section class="booking-layout">
       <aside class="selected-slot" id="selectedSlot"></aside>
       <section class="card">
@@ -42,39 +38,16 @@
         <p class="muted">Campos obrigatórios para controle da turma e contato operacional.</p>
         <form class="form" id="bookingForm">
           <div class="form-grid">
-            <label>
-              Nome completo
-              <input name="name" required minlength="2" maxlength="120" placeholder="Nome do participante" />
-            </label>
-            <label>
-              Cargo
-              <input name="role" required minlength="2" maxlength="90" placeholder="Ex.: Vendedor, Gerente" />
-            </label>
+            <label>Nome completo<input name="name" required minlength="2" maxlength="120" placeholder="Nome do participante" /></label>
+            <label>Cargo<input name="role" required minlength="2" maxlength="90" placeholder="Ex.: Vendedor, Gerente" /></label>
           </div>
           <div class="form-grid">
-            <label>
-              E-mail
-              <input name="email" type="email" required maxlength="160" placeholder="nome@empresa.com.br" />
-            </label>
-            <label>
-              Telefone celular
-              <input name="phone" type="tel" required maxlength="16" placeholder="(61) 99999-9999" />
-            </label>
+            <label>E-mail<input name="email" type="email" required maxlength="160" placeholder="nome@empresa.com.br" /></label>
+            <label>Telefone celular<input name="phone" type="tel" required maxlength="16" placeholder="(61) 99999-9999" /></label>
           </div>
           <div class="form-grid">
-            <label>
-              Loja
-              <input name="store" required minlength="2" maxlength="100" placeholder="Ex.: Jorlan Chevrolet Lago das Rosas" />
-            </label>
-            <label>
-              Cidade / praça
-              <select name="city" required>
-                <option value="">Selecione</option>
-                <option>Brasília</option>
-                <option>Belo Horizonte</option>
-                <option>Goiânia</option>
-              </select>
-            </label>
+            <label>Loja<input name="store" required minlength="2" maxlength="100" placeholder="Ex.: Jorlan Chevrolet Lago das Rosas" /></label>
+            <label>Cidade / praça<select name="city" required><option value="">Selecione</option><option>Brasília</option><option>Belo Horizonte</option><option>Goiânia</option></select></label>
           </div>
           <button class="btn primary" type="submit">Confirmar inscrição</button>
         </form>
@@ -82,7 +55,6 @@
       </section>
     </section>
   </div>
-
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/js/config.js"></script>

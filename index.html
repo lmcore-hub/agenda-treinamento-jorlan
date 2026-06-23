@@ -16,12 +16,11 @@
     </a>
     <nav class="nav-actions" aria-label="Navegação principal">
       <a class="btn ghost small" href="agendamento.html">Inscrição</a>
-      <a class="btn primary small" href="index.html#instrutor">Instrutor</a>
+      <a class="btn primary small" href="index.html#administrador">Administrador</a>
     </nav>
   </div>
 </header>
 <main class="page-main">
-
   <div class="wrapper">
     <div id="loginStatus"></div>
     <section class="hero">
@@ -29,11 +28,11 @@
         <div>
           <span class="kicker">Grupo Jorlan · Treinamento Comercial</span>
           <h1>Agenda central de treinamentos</h1>
-          <p class="lead">Escolha a opção de acesso para consultar turmas disponíveis, realizar inscrições ou administrar a agenda do instrutor.</p>
+          <p class="lead">Escolha a opção de acesso para consultar turmas disponíveis, realizar inscrições ou administrar a agenda.</p>
         </div>
         <div class="hero-metrics">
           <div class="metric"><strong>01</strong><span>inscrição guiada</span></div>
-          <div class="metric"><strong>02</strong><span>controle do instrutor</span></div>
+          <div class="metric"><strong>02</strong><span>controle administrativo</span></div>
           <div class="metric"><strong>03</strong><span>exportação da agenda</span></div>
         </div>
       </div>
@@ -43,18 +42,18 @@
           <div>
             <div class="entry-icon">A</div>
             <h2>Fazer inscrição</h2>
-            <p>Área para gestores consultarem as turmas abertas, visualizarem vagas disponíveis e cadastrarem participantes.</p>
+            <p>Área para gestores consultarem turmas abertas, visualizarem vagas disponíveis e cadastrarem participantes.</p>
           </div>
           <a class="btn primary full" href="agendamento.html">Ver dias disponíveis</a>
         </section>
 
-        <section class="login-card" id="instrutor">
-          <h2>Acesso do instrutor</h2>
-          <p>Área restrita para bloquear turmas, liberar agenda, acompanhar inscritos e exportar dados.</p>
+        <section class="login-card" id="administrador">
+          <h2>Acesso do administrador</h2>
+          <p>Área restrita para bloquear turmas, liberar agenda, acompanhar inscritos, exportar dados e gerir usuários administrativos.</p>
           <form class="form" id="adminLoginForm">
             <label>
               Usuário
-              <input name="username" autocomplete="username" required placeholder="Ex.: instrutor" />
+              <input name="username" autocomplete="username" required placeholder="Ex.: administrador" />
             </label>
             <label>
               Senha
@@ -62,13 +61,15 @@
             </label>
             <button class="btn primary full" type="submit">Entrar no painel</button>
           </form>
+          <div class="footer-actions">
+            <a class="link-quiet" href="recuperar-senha.html">Esqueci minha senha</a>
+          </div>
           <div class="alert" id="loginAlert"></div>
           <p class="footer-note">A senha é validada no banco central Supabase. Não use service_role key no GitHub.</p>
         </section>
       </div>
     </section>
   </div>
-
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/js/config.js"></script>

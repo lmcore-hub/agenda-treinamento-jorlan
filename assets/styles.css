@@ -329,6 +329,9 @@ input:focus, select:focus {
   margin-bottom: 14px;
 }
 .admin-day-head h3 { margin: 0 0 4px; font-size: 24px; letter-spacing: -.045em; }
+.day-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; align-items: center; }
+.admin-day-card.is-closed { background: linear-gradient(180deg, #fff, #fbfaf7); }
+.admin-day-card.is-open { border-color: rgba(22, 163, 74, .28); }
 .admin-day-head p { margin: 0; color: var(--muted); }
 .slot-row {
   display: grid;
@@ -379,6 +382,8 @@ input:focus, select:focus {
   .calendar-card .pill { grid-column: 1 / -1; justify-self: start; }
   .form-grid { grid-template-columns: 1fr; }
   .slot-row { grid-template-columns: 1fr; }
+  .admin-day-head { flex-direction: column; }
+  .day-actions { justify-content: flex-start; }
 }
 @media (max-width: 620px) {
   .wrapper { width: min(100% - 24px, var(--max)); }
@@ -391,3 +396,33 @@ input:focus, select:focus {
   .page-main { padding-top: 24px; }
   .nav-actions { width: 100%; justify-content: flex-start; }
 }
+
+
+/* Gestão administrativa */
+.footer-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+.link-quiet { color: var(--muted); font-size: 13px; font-weight: 800; text-decoration: none; }
+.link-quiet:hover { color: var(--ink); text-decoration: underline; }
+.management-shell { display: grid; gap: 22px; margin-top: 24px; }
+.management-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+.admin-section { border-radius: var(--radius-xl); padding: 26px; background: rgba(255,255,255,.88); border: 1px solid var(--line); box-shadow: var(--shadow-soft); }
+.admin-section h2 { margin-bottom: 8px; font-size: 26px; letter-spacing: -.04em; }
+.admin-section h3 { margin: 20px 0 10px; font-size: 19px; letter-spacing: -.03em; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 16px; background:#fff; }
+table.data-table { width: 100%; border-collapse: collapse; min-width: 640px; }
+.data-table th, .data-table td { padding: 12px 13px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; font-size: 13px; }
+.data-table th { background: var(--surface-soft); color: var(--muted); text-transform: uppercase; letter-spacing: .05em; font-weight: 900; }
+.data-table tr:last-child td { border-bottom: 0; }
+.inline-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.compact-form { display:grid; gap:10px; padding:14px; border:1px solid var(--line); border-radius:18px; background:var(--surface-soft); }
+.compact-form .form-grid { grid-template-columns: 1fr 1fr; }
+.status-row { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.admin-meta { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:8px; }
+.pill.super { background:#111; color:#fff; }
+.pill.inactive { background:var(--danger-bg); color:var(--danger); }
+.pill.pending { background:var(--warning-bg); color:var(--warning); }
+.pill.neutral { background:var(--surface-soft); color:var(--muted); }
+.recovery-card { max-width: 720px; margin: 0 auto; }
+.redirect-card { max-width: 720px; margin: 60px auto; text-align:center; }
+.notice-list { display:grid; gap:10px; margin: 18px 0 0; padding:0; list-style:none; }
+.notice-list li { padding:12px 14px; background:var(--surface-soft); border:1px solid var(--line); border-radius:14px; color:var(--muted); }
+@media (max-width: 900px) { .management-grid { grid-template-columns: 1fr; } }

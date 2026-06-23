@@ -175,8 +175,19 @@
     const summary = document.getElementById("selectedSlot");
 
     if (!slotDate || !slotTime) {
-      if (summary) summary.innerHTML = '<div class="empty">Nenhuma turma foi selecionada. Volte para a agenda e escolha um horário disponível.</div>';
-      if (form) form.style.display = "none";
+      if (summary) {
+        summary.innerHTML = '<div class="empty">Nenhuma turma foi selecionada.</div>';
+      }
+      const card = form ? form.closest(".card") : null;
+      if (card) {
+        card.innerHTML = `
+          <h2>Escolha uma turma</h2>
+          <p class="muted">Para preencher os dados de cadastro, volte à agenda e selecione um dia e horário com vaga disponível.</p>
+          <div class="toolbar" style="margin-top:18px">
+            <a class="btn primary" href="agendamento.html">Ver dias disponíveis</a>
+          </div>
+        `;
+      }
       return;
     }
 

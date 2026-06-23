@@ -23,51 +23,43 @@
 <main class="page-main">
   <div class="wrapper">
     <div id="loginStatus"></div>
-    <section class="hero">
-      <div class="hero-panel">
-        <div>
-          <span class="kicker">Grupo Jorlan · Treinamento Comercial</span>
-          <h1>Agenda central de treinamentos</h1>
-          <p class="lead">Escolha a opção de acesso para consultar turmas disponíveis, realizar inscrições ou administrar a agenda.</p>
-        </div>
-        <div class="hero-metrics">
-          <div class="metric"><strong>01</strong><span>inscrição guiada</span></div>
-          <div class="metric"><strong>02</strong><span>controle administrativo</span></div>
-          <div class="metric"><strong>03</strong><span>exportação da agenda</span></div>
-        </div>
-      </div>
 
-      <div class="side-stack">
-        <section class="card entry-card">
-          <div>
-            <div class="entry-icon">A</div>
-            <h2>Fazer inscrição</h2>
-            <p>Área para gestores consultarem turmas abertas, visualizarem vagas disponíveis e cadastrarem participantes.</p>
-          </div>
-          <a class="btn primary full" href="agendamento.html">Ver dias disponíveis</a>
-        </section>
+    <section class="home-top">
+      <section class="signup-showcase">
+        <div class="signup-copy">
+          <h1>Fazer inscrição</h1>
+          <p>Área para gestores consultarem turmas abertas, visualizarem vagas disponíveis e cadastrarem participantes.</p>
+          <a class="btn primary signup-cta" href="agendamento.html">Ver dias disponíveis</a>
+        </div>
+        <div class="signup-media">
+          <img src="assets/home-equipe-jorlan.png" alt="Dois colaboradores do Grupo Jorlan com camisa polo preta" />
+        </div>
+      </section>
 
-        <section class="login-card" id="administrador">
-          <h2>Acesso do administrador</h2>
-          <p>Área restrita para bloquear turmas, liberar agenda, acompanhar inscritos, exportar dados e gerir usuários administrativos.</p>
-          <form class="form" id="adminLoginForm">
-            <label>
-              Usuário
-              <input name="username" autocomplete="username" required placeholder="Ex.: administrador" />
-            </label>
-            <label>
-              Senha
-              <input name="password" type="password" autocomplete="current-password" required placeholder="Senha do painel" />
-            </label>
-            <button class="btn primary full" type="submit">Entrar no painel</button>
-          </form>
-          <div class="footer-actions">
-            <a class="link-quiet" href="recuperar-senha.html">Esqueci minha senha</a>
-          </div>
-          <div class="alert" id="loginAlert"></div>
-          <p class="footer-note">A senha é validada no banco central Supabase. Não use service_role key no GitHub.</p>
-        </section>
-      </div>
+      <section class="login-card" id="administrador">
+        <h2>Acesso do administrador</h2>
+        <p>Área restrita para bloquear turmas, liberar agenda, acompanhar inscritos, exportar dados e gerir usuários administrativos.</p>
+        <form class="form" id="adminLoginForm">
+          <label>
+            Usuário
+            <input name="username" autocomplete="username" required placeholder="Ex.: administrador" />
+          </label>
+          <label>
+            Senha
+            <input name="password" type="password" autocomplete="current-password" required placeholder="Senha do painel" />
+          </label>
+          <button class="btn primary full" type="submit">Entrar no painel</button>
+        </form>
+        <div class="footer-actions">
+          <a class="link-quiet" href="recuperar-senha.html">Esqueci minha senha</a>
+        </div>
+        <div class="alert" id="loginAlert"></div>
+        <p class="footer-note">A senha é validada no banco central Supabase. Não use service_role key no GitHub.</p>
+      </section>
+    </section>
+
+    <section class="brand-banner-card">
+      <img src="assets/home-banner-jorlan.png" alt="Banner institucional do Grupo Jorlan" />
     </section>
   </div>
 </main>

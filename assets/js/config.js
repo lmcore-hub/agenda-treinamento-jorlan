@@ -1,4 +1,4 @@
 window.JORLAN_TRAINING_CONFIG = {
-  SUPABASE_URL: "https://knpcfkexhq...supabase.co",
-  SUPABASE_ANON_KEY: "sb_publishable_..."
+  SUPABASE_URL: "https://knpcfkexhqpihpfrvpzg.supabase.co",
+  SUPABASE_ANON_KEY: "COLE_AQUI_A_CHAVE_COMPLETA_SEM_RETICENCIAS"
 };

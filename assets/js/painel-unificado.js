@@ -8,13 +8,13 @@
     return;
   }
   const sb = supabaseLib.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
-  const state = { sessionToken: localStorage.getItem(tokenKey) || sessionStorage.getItem(tokenKey) || '', currentAdmin: null, users: [], filteredUsers: [], agenda: null, slots: [] };
+  const state = { sessionToken: localStorage.getItem(tokenKey) || sessionStorage.getItem(tokenKey) || '', currentAdmin: null, users: [], filteredUsers: [], agenda: null, slots: [], weekOffset: 0 };
   const $ = (id) => document.getElementById(id);
   const els = {
     badge: $('current-admin-badge'), logout: $('logout-button'),
     agendaGrid: $('agenda-grid'), agendaFeedback: $('agenda-feedback'), agendaWarning: $('agenda-warning'), agendaHorizon: $('agenda-horizon'),
     agendaOpen: $('agenda-open'), agendaBlocked: $('agenda-blocked'), agendaBooked: $('agenda-booked'), agendaAvailable: $('agenda-available'),
-    refreshAgenda: $('refresh-agenda'), extendWeek: $('extend-week'), exportCsv: $('export-csv'),
+    refreshAgenda: $('refresh-agenda'), prevWeek: $('prev-week'), extendWeek: $('extend-week'), exportCsv: $('export-csv'),
     search: $('user-search'), filterStatus: $('user-filter-status'), filterTier: $('user-filter-tier'), tableBody: $('users-table-body'), tableFeedback: $('table-feedback'),
     statTotal: $('stat-total'), statActive: $('stat-active'), statPremium: $('stat-premium'), statInactive: $('stat-inactive'),
     createForm: $('create-user-form'), createFeedback: $('create-feedback'), modal: $('edit-user-modal'), closeModal: $('close-edit-modal'), editForm: $('edit-user-form'), editFeedback: $('edit-feedback'),
@@ -34,6 +34,57 @@
   function normDate(d) { if (!d) return ''; return String(d).slice(0,10); }
   function fmtDate(d) { if (!d) return '-'; const [y,m,day]=normDate(d).split('-'); return day && m && y ? `${day}/${m}/${y}` : String(d); }
   function normTime(t) { if (!t) return ''; return String(t).slice(0,5); }
+  function toLocalDate(iso) {
+    const parts = String(iso || '').slice(0,10).split('-').map(Number);
+    if (parts.length !== 3 || parts.some(Number.isNaN)) return null;
+    return new Date(parts[0], parts[1] - 1, parts[2]);
+  }
+  function weekStart(offset = 0) {
+    const d = new Date();
+    d.setHours(0,0,0,0);
+    const day = d.getDay();
+    const diffToMonday = (day + 6) % 7;
+    d.setDate(d.getDate() - diffToMonday + (offset * 7));
+    return d;
+  }
+  function addDays(date, days) {
+    const d = new Date(date.getTime());
+    d.setDate(d.getDate() + days);
+    return d;
+  }
+  function weekDiffFromCurrent(dateIso) {
+    const d = toLocalDate(dateIso);
+    if (!d) return 0;
+    const current = weekStart(0).getTime();
+    const target = weekStartFromDate(d).getTime();
+    return Math.round((target - current) / (7 * 24 * 60 * 60 * 1000));
+  }
+  function weekStartFromDate(date) {
+    const d = new Date(date.getTime());
+    d.setHours(0,0,0,0);
+    const diffToMonday = (d.getDay() + 6) % 7;
+    d.setDate(d.getDate() - diffToMonday);
+    return d;
+  }
+  function slotsInViewedWeek() {
+    const start = weekStart(state.weekOffset);
+    const end = addDays(start, 6);
+    return state.slots.filter(s => {
+      const d = toLocalDate(s.date);
+      return d && d >= start && d <= end;
+    });
+  }
+  function viewedWeekLabel() {
+    const start = weekStart(state.weekOffset);
+    const end = addDays(start, 6);
+    const toBR = (d) => String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+    return toBR(start) + ' a ' + toBR(end);
+  }
+  function maxLoadedWeekOffset() {
+    if (!state.slots.length) return 0;
+    return Math.max(...state.slots.map(s => weekDiffFromCurrent(s.date)));
+  }
+
   function bookingsOf(slot) { return slot.bookings || slot.participants || slot.inscritos || slot.registrations || []; }
   function bookingName(b) { return b.name || b.participant_name || b.nome || b.full_name || b.nome_completo || '-'; }
   function bookingRole(b) { return b.role || b.participant_role || b.cargo || '-'; }
@@ -90,15 +141,15 @@
     }
   }
   function renderAgenda() {
-    const slots = state.slots;
+    const slots = slotsInViewedWeek();
     const open = slots.filter(s => !s.blocked).length;
     const blocked = slots.filter(s => s.blocked).length;
     const booked = slots.reduce((sum,s)=>sum+s.booked,0);
     const available = slots.reduce((sum,s)=>sum+s.available,0);
     els.agendaOpen.textContent = open; els.agendaBlocked.textContent = blocked; els.agendaBooked.textContent = booked; els.agendaAvailable.textContent = available;
     const horizon = state.agenda?.horizonDate || state.agenda?.horizon_date || state.agenda?.horizon || '';
-    els.agendaHorizon.textContent = horizon ? 'Agenda até ' + fmtDate(horizon) : 'Agenda carregada';
-    if (!slots.length) { els.agendaGrid.innerHTML = '<div class="card empty">Nenhuma turma encontrada.</div>'; return; }
+    els.agendaHorizon.textContent = 'Semana ' + viewedWeekLabel();
+    if (!slots.length) { els.agendaGrid.innerHTML = '<div class="card empty">Nenhuma turma encontrada nesta semana. Use Voltar -1 semana ou Mostrar +1 semana para navegar sem perder histórico.</div>'; return; }
     els.agendaGrid.innerHTML = slots.map(s => `
       <article class="card slot-card">
         <div class="slot-top"><div><div class="slot-title">${fmtDate(s.date)} • ${escapeHtml(s.time)}</div><div class="slot-sub">${s.booked}/${s.capacity} inscritos • ${s.available} vagas</div></div><span class="pill-status ${s.blocked?'inactive':'active'}">${s.blocked?'Bloqueada':'Aberta'}</span></div>
@@ -115,8 +166,25 @@
       await loadAgenda();
     } catch (e) { feedback(els.agendaFeedback, 'error', e.message || 'Não foi possível alterar a turma.'); }
   }
+  function prevWeek() {
+    state.weekOffset -= 1;
+    clearFeedback(els.agendaFeedback);
+    renderAgenda();
+  }
   async function extendWeek() {
-    try { await rpc('training_admin_extend_week', { p_session_token: state.sessionToken }); feedback(els.agendaFeedback, 'success', 'Agenda ampliada.'); await loadAgenda(); }
+    try {
+      const maxOffset = maxLoadedWeekOffset();
+      if (state.weekOffset < maxOffset) {
+        state.weekOffset += 1;
+        clearFeedback(els.agendaFeedback);
+        renderAgenda();
+        return;
+      }
+      await rpc('training_admin_extend_week', { p_session_token: state.sessionToken });
+      state.weekOffset += 1;
+      feedback(els.agendaFeedback, 'success', 'Agenda ampliada e próxima semana exibida. O histórico anterior foi preservado.');
+      await loadAgenda();
+    }
     catch(e){ feedback(els.agendaFeedback, 'error', e.message || 'Não foi possível ampliar a agenda.'); }
   }
   function exportCsv() {
@@ -147,7 +215,7 @@
   function bindEvents(){
     document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');$('panel-'+btn.dataset.tab).classList.add('active');}));
     els.logout.addEventListener('click',()=>{localStorage.removeItem(tokenKey);sessionStorage.removeItem(tokenKey);localStorage.removeItem(profileKey);location.href='index.html';});
-    els.refreshAgenda.addEventListener('click',loadAgenda); els.extendWeek.addEventListener('click',extendWeek); els.exportCsv.addEventListener('click',exportCsv);
+    els.refreshAgenda.addEventListener('click',loadAgenda); if (els.prevWeek) els.prevWeek.addEventListener('click',prevWeek); els.extendWeek.addEventListener('click',extendWeek); els.exportCsv.addEventListener('click',exportCsv);
     els.agendaGrid.addEventListener('click',e=>{const b=e.target.closest('button[data-slot-toggle]'); if(b) toggleSlot(b.dataset.slotToggle,b.dataset.blocked==='true');});
     els.search.addEventListener('input',applyUserFilters); els.filterStatus.addEventListener('change',applyUserFilters); els.filterTier.addEventListener('change',applyUserFilters);
     els.createForm.addEventListener('submit',createUser); els.closeModal.addEventListener('click',closeEdit); els.modal.addEventListener('click',e=>{if(e.target===els.modal)closeEdit();}); els.editForm.addEventListener('submit',saveEdit);

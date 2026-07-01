@@ -3,27 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Recuperar senha | Agenda de Treinamento</title>
+  <title>Redefinir senha | Agenda de Treinamento</title>
   <style>
     :root{--bg:#e9e6e1;--card:#fff;--ink:#0b0b0c;--muted:#676b74;--line:#d8d4ce;--danger:#aa2e24;--success:#236946;--radius:34px;--shadow:0 14px 40px rgba(0,0,0,.07)}
     *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{text-decoration:none;color:inherit}.topbar{height:76px;background:#fff;border-bottom:1px solid #e8e3dd;display:flex;align-items:center}.topbar-inner{width:min(1180px,calc(100% - 34px));margin:0 auto;display:flex;align-items:center;justify-content:space-between}.brand{font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#60646c}.btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);background:#fff;border-radius:16px;padding:12px 18px;font-weight:900}.btn.dark{background:#0a0a0b;color:#fff;border-color:#0a0a0b}.main{min-height:calc(100vh - 76px);display:grid;place-items:center;padding:34px 18px}.card{width:min(100%,620px);background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:42px}.eyebrow{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:8px 14px;color:var(--muted);font-size:13px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;margin-bottom:20px}h1{font-size:clamp(42px,5vw,68px);line-height:.94;letter-spacing:-.06em;margin:0 0 18px;font-weight:950}p{color:var(--muted);font-size:18px;line-height:1.5;margin:0 0 24px}.form{display:grid;gap:16px}.field{display:grid;gap:8px}.field label{font-weight:900}.field input{border:2px solid var(--line);border-radius:18px;padding:16px 18px;font-size:17px;font-weight:700;outline:none}.field input:focus{border-color:#bbb5ad;box-shadow:0 0 0 4px rgba(0,0,0,.04)}.submit{width:100%;border:0;border-radius:20px;background:#09090a;color:#fff;padding:18px 22px;font-size:18px;font-weight:950;cursor:pointer}.alert{display:none;margin-top:18px;border-radius:18px;padding:16px 18px;font-weight:800;line-height:1.45}.alert.show{display:block}.alert.success{background:#e8f5ef;color:var(--success)}.alert.error{background:#f8e8e6;color:var(--danger)}.footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:22px;color:var(--muted);font-weight:850}@media(max-width:640px){.card{padding:28px}.topbar{height:auto}.topbar-inner{padding:16px 0;flex-direction:column;align-items:flex-start;gap:12px}h1{font-size:44px}}
 </style>
 </head>
-<body data-page="password-request">
+<body data-page="password-reset">
   <header class="topbar"><div class="topbar-inner"><div class="brand">Grupo Jorlan · Agenda de Treinamento</div><a class="btn" href="index.html">Voltar</a></div></header>
   <main class="main">
     <section class="card">
-      <div class="eyebrow">Acesso administrativo</div>
-      <h1>Recuperar senha</h1>
-      <p>Informe o e-mail cadastrado. Se o usuário existir e estiver ativo, enviaremos um link temporário para redefinir a senha.</p>
-      <form class="form" id="password-request-form">
-        <div class="field"><label for="reset-email">E-mail</label><input id="reset-email" type="email" autocomplete="email" placeholder="email@grupojorlan.com" required /></div>
-        <button class="submit" type="submit">Enviar link de recuperação</button>
+      <div class="eyebrow">Nova senha</div>
+      <h1>Redefinir senha</h1>
+      <p>Crie uma nova senha para o painel administrativo. O link é temporário e será invalidado após o uso.</p>
+      <form class="form" id="password-reset-form">
+        <div class="field"><label for="new-password">Nova senha</label><input id="new-password" type="password" autocomplete="new-password" placeholder="Mínimo 6 caracteres" required minlength="6" /></div>
+        <div class="field"><label for="confirm-password">Confirmar senha</label><input id="confirm-password" type="password" autocomplete="new-password" placeholder="Repita a nova senha" required minlength="6" /></div>
+        <button class="submit" type="submit">Salvar nova senha</button>
       </form>
       <div id="password-alert" class="alert"></div>
       <div class="footer"><a href="index.html">Voltar ao login</a></div>
     </section>
   </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/config.js"></script>
   <script src="assets/js/password-recovery.js"></script>
 </body>

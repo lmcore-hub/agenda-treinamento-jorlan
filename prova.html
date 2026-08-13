@@ -1,4 +1,304 @@
-1528409 index.html
-  18192 painel-administrador.html
-  17232 prova.html
-1563833 total
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Avaliação Técnica de Seminovos</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<style>
+:root{--bg:#f3f5f7;--card:#fff;--ink:#17202a;--muted:#667085;--brand:#143d63;--accent:#1f6feb;--ok:#157347;--danger:#b42318;--line:#e5e7eb}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(135deg,#102f4c,#1b4f7a);color:#fff;padding:26px 20px}
+.wrap{max-width:980px;margin:auto;padding:24px 18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 8px 24px rgba(16,24,40,.06);margin-bottom:18px}
+h1{margin:0;font-size:26px} h2{margin:0 0 14px} p{line-height:1.5}
+.muted{color:var(--muted)} .bad{color:var(--danger);font-weight:700} .good{color:var(--ok);font-weight:700}
+button{border:0;border-radius:10px;padding:12px 16px;font-weight:700;cursor:pointer;background:var(--brand);color:#fff}
+button.secondary{background:#eef2f6;color:#263746}
+input{width:100%;padding:12px;border:1px solid #d0d5dd;border-radius:9px;font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.q{padding:18px 0;border-bottom:1px solid var(--line)}
+.choice{display:block;border:1px solid #d8dee6;border-radius:10px;padding:11px;margin:8px 0;cursor:pointer}
+.choice:has(input:checked){border-color:var(--accent);background:#eef6ff}
+.timer{position:sticky;top:0;background:#111827;color:#fff;padding:10px 14px;border-radius:10px;font-weight:800;text-align:center;z-index:3}
+table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;font-size:14px}
+.qrgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.qrbox{border:1px solid var(--line);border-radius:12px;padding:14px}
+@media(max-width:700px){.grid,.qrgrid{grid-template-columns:1fr}.wrap{padding:16px 12px}h1{font-size:22px}}
+
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fafbfc}
+.kpi b{display:block;font-size:24px;margin-top:6px}
+.filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.tablewrap{overflow:auto;max-height:560px;border:1px solid var(--line);border-radius:12px}
+.message{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:12px;white-space:pre-wrap;font-size:14px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:700px){.filters,.kpis{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="wrap" style="padding:0 18px"><h1>Avaliação Técnica de Seminovos</h1><div style="opacity:.86;margin-top:5px">AutoAvaliar • Laudo cautelar • Argumentação comercial</div></div></header>
+<main class="wrap"><div id="app"></div></main>
+<script>
+const API_BASE = 'https://knpcfkexhqpihpfrvpzg.supabase.co/functions/v1/training-exam';
+const app=document.getElementById('app'), qs=new URLSearchParams(location.search), token=qs.get('token');
+
+const api=(name,opt={})=>fetch(API_BASE+'?api='+name,{...opt,headers:{'Content-Type':'application/json',...(opt.headers||{})}}).then(async r=>{const j=await r.json();if(!r.ok)throw new Error(j.error||'Erro');return j});
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+
+async function candidate(){
+  try{
+    const info=await api('candidate_info&token='+encodeURIComponent(token));
+    if(['submitted','expired'].includes(info.status)){
+      app.innerHTML='<div class="card"><h2>Prova encerrada</h2><p>'+esc(info.name)+', sua avaliação já foi registrada.</p><p class="muted">O resultado será acompanhado pelo responsável pelo treinamento.</p></div>';
+      return;
+    }
+    app.innerHTML='<div class="card"><h2>'+esc(info.training_exam_batches.title)+'</h2><p><b>Aluno:</b> '+esc(info.name)+'</p><p><b>Tempo:</b> '+info.training_exam_batches.duration_minutes+' minutos • <b>10 questões</b></p><p class="muted">O cronômetro começa ao clicar em Iniciar. Ao terminar o tempo, a prova é bloqueada automaticamente.</p><button id="start">Iniciar prova</button></div>';
+    document.getElementById('start').onclick=startExam;
+  }catch(e){app.innerHTML='<div class="card bad">'+esc(e.message)+'</div>'}
+}
+
+async function startExam(){
+  try{
+    const d=await api('candidate_start',{method:'POST',body:JSON.stringify({token})});
+    let html='<div class="timer" id="timer"></div><div class="card"><h2>Prova de '+esc(d.student.name)+'</h2><p class="muted">Marque uma alternativa em cada questão. As respostas são salvas ao clicar.</p>';
+    for(const q of d.questions){
+      html+='<div class="q"><b>'+q.position+'. '+esc(q.stem)+'</b>';
+      for(const c of q.choices) html+='<label class="choice"><input type="radio" name="q'+q.id+'" value="'+c.label+'" '+(q.selected===c.label?'checked':'')+'> <b>'+c.label+')</b> '+esc(c.text)+'</label>';
+      html+='</div>';
+    }
+    html+='<div style="margin-top:18px"><button id="submit">Finalizar prova</button></div></div>';
+    app.innerHTML=html;
+    document.querySelectorAll('input[type=radio]').forEach(el=>el.onchange=async e=>{
+      const qid=Number(e.target.name.slice(1));
+      try{await api('candidate_answer',{method:'POST',body:JSON.stringify({token,question_id:qid,selected:e.target.value})})}catch(err){alert(err.message)}
+    });
+    document.getElementById('submit').onclick=async()=>{
+      if(!confirm('Finalizar a prova? Depois disso não será possível alterar respostas.'))return;
+      try{await api('candidate_submit',{method:'POST',body:JSON.stringify({token})});candidate()}catch(e){alert(e.message)}
+    };
+    const exp=new Date(d.student.expires_at).getTime();
+    const tick=()=>{
+      const left=Math.max(0,exp-Date.now()),m=Math.floor(left/60000),s=Math.floor((left%60000)/1000);
+      const t=document.getElementById('timer');
+      if(t)t.textContent='Tempo restante: '+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+      if(left<=0){clearInterval(iv);api('candidate_submit',{method:'POST',body:JSON.stringify({token})}).finally(candidate)}
+    };
+    tick(); const iv=setInterval(tick,1000);
+  }catch(e){alert(e.message);candidate()}
+}
+
+let adminToken=localStorage.getItem('exam_admin_token');
+
+async function admin(){
+  if(!adminToken){
+    app.innerHTML='<div class="card" style="max-width:480px;margin:auto"><h2>Painel do responsável</h2><div style="margin:10px 0"><input id="user" placeholder="Usuário"></div><div style="margin:10px 0"><input id="pass" type="password" placeholder="Senha"></div><button id="login">Entrar</button></div>';
+    document.getElementById('login').onclick=async()=>{
+      try{
+        const d=await api('login',{method:'POST',body:JSON.stringify({username:user.value,password:pass.value})});
+        adminToken=d.token;localStorage.setItem('exam_admin_token',adminToken);adminHome();
+      }catch(e){alert(e.message)}
+    }
+  } else adminHome();
+}
+
+async function adminApi(name,opt={}){return api(name,{...opt,headers:{...(opt.headers||{}),'x-admin-token':adminToken}})}
+
+
+let dashboardRows=[];
+
+function candidateLink(accessToken){
+  return location.origin+location.pathname+'?token='+encodeURIComponent(accessToken);
+}
+function whatsappText(name,link){
+  return `Olá, ${name}! Tudo bem?
+
+Segue sua avaliação do treinamento de Seminovos.
+
+A prova possui 10 questões e o tempo começa somente quando você clicar em “Iniciar prova”.
+
+Seu acesso é individual:
+${link}
+
+Faça a prova pelo celular e, após finalizar, sua participação ficará registrada automaticamente.
+
+Boa prova!`;
+}
+function copyText(text){
+  navigator.clipboard.writeText(text).then(()=>alert('Copiado.'));
+}
+function ptStatus(s){
+  return ({not_started:'Não iniciada',in_progress:'Em andamento',submitted:'Concluída',expired:'Tempo encerrado'})[s]||s;
+}
+
+async function adminHome(){
+  try{
+    await adminApi('admin_batches');
+    app.innerHTML=`
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+        <div><h2>Nova turma</h2><p class="muted">Gere prova, QR Code e mensagem de WhatsApp individual para até 8 participantes.</p></div>
+        <button class="secondary" id="logout">Sair</button>
+      </div>
+      <div class="grid">
+        <div><label>Título</label><input id="title" value="Avaliação pós-treinamento — Seminovos"></div>
+        <div><label>Data</label><input id="date" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
+        <div><label>Loja</label><input id="store" placeholder="Ex.: Jorlan SIA"></div>
+        <div><label>Gestor</label><input id="manager" placeholder="Nome do gestor"></div>
+        <div><label>Tempo (min)</label><input id="duration" type="number" value="15" min="5" max="60"></div>
+        <div><label>Planilha Excel</label><input id="excel" type="file" accept=".xlsx,.xls,.csv"></div>
+      </div>
+      <p class="muted">A primeira coluna da primeira aba deve conter os nomes. Cabeçalho “Nome” é ignorado.</p>
+      <button id="create">Gerar provas, QR Codes e mensagens</button>
+    </div>
+
+    <div id="out"></div>
+
+    <div class="card">
+      <h2>Dashboard e histórico</h2>
+      <div class="filters">
+        <div><label>Loja</label><select id="fStore"><option value="">Todas</option></select></div>
+        <div><label>Gestor</label><select id="fManager"><option value="">Todos</option></select></div>
+        <div><label>Status</label><select id="fStatus">
+          <option value="">Todos</option>
+          <option value="not_started">Não iniciada</option>
+          <option value="in_progress">Em andamento</option>
+          <option value="submitted">Concluída</option>
+          <option value="expired">Tempo encerrado</option>
+        </select></div>
+        <div><label>Data</label><input id="fDate" type="date"></div>
+        <div><label>Participante</label><input id="fName" placeholder="Buscar nome"></div>
+        <div><label>Nota mínima</label><input id="fScore" type="number" min="0" max="10" step="0.1"></div>
+      </div>
+      <div class="actions" style="margin-top:12px">
+        <button id="applyFilters">Aplicar filtros</button>
+        <button class="secondary" id="clearFilters">Limpar</button>
+        <button class="secondary" id="exportDash">Exportar CSV</button>
+      </div>
+    </div>
+    <div id="dashboard"></div>`;
+
+    logout.onclick=()=>{localStorage.removeItem('exam_admin_token');adminToken=null;admin()};
+    create.onclick=createBatch;
+    applyFilters.onclick=renderDashboard;
+    clearFilters.onclick=()=>{
+      fStore.value=fManager.value=fStatus.value=fDate.value=fName.value=fScore.value='';
+      renderDashboard();
+    };
+    exportDash.onclick=exportDashboard;
+    await loadDashboard();
+  }catch(e){
+    localStorage.removeItem('exam_admin_token');
+    adminToken=null;
+    admin();
+  }
+}
+
+async function createBatch(){
+  if(!store.value.trim()||!manager.value.trim()){alert('Informe Loja e Gestor.');return}
+  const f=excel.files[0];if(!f){alert('Selecione o Excel com os nomes.');return}
+  const data=await f.arrayBuffer(),wb=XLSX.read(data),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{header:1});
+  let names=rows.map(r=>String(r[0]||'').trim()).filter(Boolean);
+  if(names[0]&&/^nome/i.test(names[0]))names.shift();
+  names=[...new Set(names)].slice(0,8);
+  if(!names.length){alert('Nenhum nome encontrado.');return}
+
+  try{
+    const d=await adminApi('admin_create_batch',{method:'POST',body:JSON.stringify({
+      title:title.value,
+      training_date:date.value,
+      duration_minutes:Number(duration.value),
+      store:store.value.trim(),
+      manager:manager.value.trim(),
+      students:names
+    })});
+
+    let h='<div class="card"><h2>Acessos gerados</h2><p class="muted">Esses acessos também ficam disponíveis no histórico.</p><div class="qrgrid">';
+    for(const s of d.students){
+      const link=candidateLink(s.access_token);
+      const msg=whatsappText(s.name,link);
+      h+='<div class="qrbox"><h3>'+esc(s.name)+'</h3><div id="qr'+s.id+'" style="margin:12px 0"></div><div class="message">'+esc(msg)+'</div><div class="actions" style="margin-top:10px"><button class="secondary copyMsg" data-msg="'+encodeURIComponent(msg)+'">Copiar mensagem</button><button class="secondary copyLink" data-link="'+encodeURIComponent(link)+'">Copiar link</button></div></div>';
+    }
+    h+='</div></div>';
+    out.innerHTML=h;
+
+    for(const s of d.students){
+      new QRCode(document.getElementById('qr'+s.id),{text:candidateLink(s.access_token),width:150,height:150});
+    }
+    document.querySelectorAll('.copyMsg').forEach(b=>b.onclick=()=>copyText(decodeURIComponent(b.dataset.msg)));
+    document.querySelectorAll('.copyLink').forEach(b=>b.onclick=()=>copyText(decodeURIComponent(b.dataset.link)));
+
+    await loadDashboard();
+  }catch(e){alert(e.message)}
+}
+
+async function loadDashboard(){
+  dashboardRows=await adminApi('admin_dashboard');
+  const stores=[...new Set(dashboardRows.map(r=>r.training_exam_batches?.store).filter(Boolean))].sort();
+  const managers=[...new Set(dashboardRows.map(r=>r.training_exam_batches?.manager).filter(Boolean))].sort();
+  fStore.innerHTML='<option value="">Todas</option>'+stores.map(x=>'<option>'+esc(x)+'</option>').join('');
+  fManager.innerHTML='<option value="">Todos</option>'+managers.map(x=>'<option>'+esc(x)+'</option>').join('');
+  renderDashboard();
+}
+
+function filteredRows(){
+  return dashboardRows.filter(r=>{
+    const b=r.training_exam_batches||{};
+    return (!fStore.value||b.store===fStore.value)
+      &&(!fManager.value||b.manager===fManager.value)
+      &&(!fStatus.value||r.status===fStatus.value)
+      &&(!fDate.value||b.training_date===fDate.value)
+      &&(!fName.value||r.name.toLowerCase().includes(fName.value.toLowerCase()))
+      &&(!fScore.value||(Number(r.score)||0)>=Number(fScore.value));
+  });
+}
+
+function renderDashboard(){
+  const rows=filteredRows();
+  const completed=rows.filter(r=>['submitted','expired'].includes(r.status));
+  const avg=completed.length?(completed.reduce((s,r)=>s+(Number(r.score)||0),0)/completed.length).toFixed(1):'-';
+  const above7=completed.filter(r=>(Number(r.score)||0)>=7).length;
+
+  let h='<div class="card"><div class="kpis">'
+    +'<div class="kpi">Participantes<b>'+rows.length+'</b></div>'
+    +'<div class="kpi">Concluídas<b>'+completed.length+'</b></div>'
+    +'<div class="kpi">Nota média<b>'+avg+'</b></div>'
+    +'<div class="kpi">Nota ≥ 7<b>'+above7+'</b></div>'
+    +'</div></div>';
+
+  h+='<div class="card"><h2>Histórico de participantes</h2><div class="tablewrap"><table><thead><tr><th>Data</th><th>Loja</th><th>Gestor</th><th>Participante</th><th>Status</th><th>Acertos</th><th>Nota</th><th>Acesso</th></tr></thead><tbody>';
+  for(const r of rows){
+    const b=r.training_exam_batches||{};
+    const link=candidateLink(r.access_token);
+    const msg=whatsappText(r.name,link);
+    h+='<tr><td>'+esc(b.training_date||'-')+'</td><td>'+esc(b.store||'-')+'</td><td>'+esc(b.manager||'-')+'</td><td>'+esc(r.name)+'</td><td>'+esc(ptStatus(r.status))+'</td><td>'+(r.correct_count??'-')+'/10</td><td><b>'+(r.score??'-')+'</b></td><td><button class="secondary histAccess" data-name="'+encodeURIComponent(r.name)+'" data-link="'+encodeURIComponent(link)+'" data-msg="'+encodeURIComponent(msg)+'">Ver acesso</button></td></tr>';
+  }
+  h+='</tbody></table></div></div>';
+  dashboard.innerHTML=h;
+
+  document.querySelectorAll('.histAccess').forEach(b=>b.onclick=()=>{
+    const name=decodeURIComponent(b.dataset.name),link=decodeURIComponent(b.dataset.link),msg=decodeURIComponent(b.dataset.msg);
+    out.innerHTML='<div class="card"><h2>'+esc(name)+'</h2><div id="historyQr" style="margin:12px 0"></div><div class="message">'+esc(msg)+'</div><div class="actions" style="margin-top:10px"><button id="copyHistoryMsg" class="secondary">Copiar mensagem</button><button id="copyHistoryLink" class="secondary">Copiar link</button></div></div>';
+    new QRCode(document.getElementById('historyQr'),{text:link,width:180,height:180});
+    copyHistoryMsg.onclick=()=>copyText(msg);
+    copyHistoryLink.onclick=()=>copyText(link);
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+}
+
+function exportDashboard(){
+  const rows=filteredRows();
+  const data=[['Data','Loja','Gestor','Participante','Status','Acertos','Nota','Link'],...rows.map(r=>{
+    const b=r.training_exam_batches||{};
+    return [b.training_date||'',b.store||'',b.manager||'',r.name,ptStatus(r.status),r.correct_count??'',r.score??'',candidateLink(r.access_token)];
+  })];
+  const blob=new Blob([data.map(x=>x.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(';')).join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='dashboard_provas.csv';a.click();
+}
+
+if(token)candidate();else admin();
+</script>
+</body>
+</html>

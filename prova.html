@@ -145,8 +145,6 @@ async function adminHome(){
       <div class="grid">
         <div><label>Título</label><input id="title" value="Avaliação pós-treinamento — Seminovos"></div>
         <div><label>Data</label><input id="date" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
-        <div><label>Loja</label><input id="store" placeholder="Ex.: Jorlan SIA"></div>
-        <div><label>Gestor</label><input id="manager" placeholder="Nome do gestor"></div>
         <div><label>Tempo (min)</label><input id="duration" type="number" value="15" min="5" max="60"></div>
         <div><label>Planilha Excel</label><input id="excel" type="file" accept=".xlsx,.xls,.csv"></div>
       </div>
@@ -197,7 +195,6 @@ async function adminHome(){
 }
 
 async function createBatch(){
-  if(!store.value.trim()||!manager.value.trim()){alert('Informe Loja e Gestor.');return}
   const f=excel.files[0];if(!f){alert('Selecione o Excel com os nomes.');return}
   const data=await f.arrayBuffer(),wb=XLSX.read(data),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{header:1});
   let names=rows.map(r=>String(r[0]||'').trim()).filter(Boolean);
@@ -210,8 +207,8 @@ async function createBatch(){
       title:title.value,
       training_date:date.value,
       duration_minutes:Number(duration.value),
-      store:store.value.trim(),
-      manager:manager.value.trim(),
+      store:'Automático conforme inscrição',
+      manager:'Automático conforme cargo e loja',
       students:names
     })});
 

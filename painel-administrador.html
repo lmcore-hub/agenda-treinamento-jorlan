@@ -146,6 +146,18 @@
 
     .panel { display:none; }
     .panel.active { display:block; }
+    .exam-shell {
+      overflow: hidden;
+      padding: 0;
+      min-height: 760px;
+    }
+    .exam-frame {
+      display: block;
+      width: 100%;
+      min-height: 960px;
+      border: 0;
+      background: #f3f5f7;
+    }
 
     .stats {
       display:grid;
@@ -440,6 +452,7 @@
 
     <nav class="tabs">
       <button class="tab active" data-tab="agenda" type="button">Agenda de turmas</button>
+      <button class="tab" data-tab="provas" type="button">Controle de provas</button>
       <button class="tab" data-tab="usuarios" type="button">Usuários</button>
     </nav>
 
@@ -466,6 +479,21 @@
       <section id="agenda-grid" class="agenda-grid">
         <div class="card empty">Carregando agenda...</div>
       </section>
+    </section>
+
+    <section id="panel-provas" class="panel">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <strong>Controle de provas</strong>
+          <span class="helper">Crie avaliações, gere acessos e acompanhe os resultados sem sair do administrativo.</span>
+        </div>
+        <div class="toolbar-right">
+          <a class="btn" href="prova.html" target="_blank" rel="noopener">Abrir em tela cheia</a>
+        </div>
+      </div>
+      <article class="card exam-shell">
+        <iframe class="exam-frame" src="prova.html?admin=1" title="Controle de provas"></iframe>
+      </article>
     </section>
 
     <section id="panel-usuarios" class="panel">

@@ -5,125 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Confirmar presença | Agenda de Treinamento</title>
   <style>
-    :root { --bg:#ebe7e2; --card:#ffffff; --ink:#121314; --muted:#6e727a; --line:#d9d4cc; --soft:#f6f3ef; --shadow:0 10px 32px rgba(0,0,0,.06); --radius:26px; --danger:#b33a2d; --success:#256947; }
-    * { box-sizing:border-box; }
-    body { margin:0; background:var(--bg); color:var(--ink); font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-    .topbar { background:#fff; border-bottom:1px solid #e7e2db; }
-    .topbar-inner { max-width:960px; margin:auto; padding:16px 22px; display:flex; align-items:center; gap:18px; }
-    .brand { display:flex; align-items:center; gap:18px; text-decoration:none; color:inherit; }
-    .brand img { width:178px; height:auto; display:block; }
-    .brand-title { padding-left:18px; border-left:2px solid #ddd7cf; font-size:16px; font-weight:850; letter-spacing:.08em; color:#666a72; text-transform:uppercase; }
-    .page { max-width:760px; margin:0 auto; padding:34px 22px; }
-    .card { background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:28px; }
-    h1 { margin:0 0 8px; font-size:44px; line-height:.96; letter-spacing:-.055em; font-weight:950; }
-    p { margin:0 0 12px; color:var(--muted); line-height:1.5; }
-    .details { background:var(--soft); border:1px solid #eee8df; border-radius:20px; padding:16px; margin:18px 0; }
-    .details strong { display:block; margin-bottom:4px; }
-    .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:13px 18px; border-radius:16px; border:1px solid #0a0a0b; background:#0a0a0b; color:#fff; font-size:15px; font-weight:900; cursor:pointer; text-decoration:none; }
-    .btn.secondary { background:#fff; color:var(--ink); border-color:var(--line); }
-    .feedback { display:none; margin-top:16px; border-radius:16px; padding:14px 16px; font-weight:850; }
-    .feedback.show { display:block; }
-    .feedback.success { background:#e7f5ee; color:var(--success); }
-    .feedback.error { background:#f8e8e6; color:var(--danger); }
-    @media(max-width:720px){ .topbar-inner{flex-direction:column;align-items:flex-start}.brand img{width:160px}.brand-title{font-size:13px;padding-left:12px}h1{font-size:36px}.page{padding:24px 14px}.card{padding:22px} }
+    :root{--bg:#ebe7e2;--card:#fff;--ink:#121314;--muted:#6e727a;--line:#d9d4cc;--soft:#f6f3ef;--shadow:0 10px 32px rgba(0,0,0,.06);--radius:26px;--danger:#b33a2d;--success:#256947}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.topbar{background:#fff;border-bottom:1px solid #e7e2db}.topbar-inner{max-width:960px;margin:auto;padding:16px 22px;display:flex;align-items:center;gap:18px}.brand{display:flex;align-items:center;gap:18px;text-decoration:none;color:inherit}.brand img{width:178px}.brand-title{padding-left:18px;border-left:2px solid #ddd7cf;font-size:16px;font-weight:850;letter-spacing:.08em;color:#666a72;text-transform:uppercase}.page{max-width:760px;margin:0 auto;padding:34px 22px}.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px}h1{margin:0 0 8px;font-size:44px;line-height:.96;letter-spacing:-.055em;font-weight:950}p{margin:0 0 12px;color:var(--muted);line-height:1.5}.details{background:var(--soft);border:1px solid #eee8df;border-radius:20px;padding:16px;margin:18px 0}.details strong{display:block;margin-bottom:4px}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 18px;border-radius:16px;border:1px solid #0a0a0b;background:#0a0a0b;color:#fff;font-size:15px;font-weight:900;cursor:pointer;text-decoration:none}.btn.secondary{background:#fff;color:var(--ink);border-color:var(--line)}.btn.success{background:#f0fbf4;color:var(--success);border-color:#cae7d7}.feedback{display:none;margin-top:16px;border-radius:16px;padding:14px 16px;font-weight:850}.feedback.show{display:block}.feedback.success{background:#e7f5ee;color:var(--success)}.feedback.error{background:#f8e8e6;color:var(--danger)}@media(max-width:720px){.topbar-inner{flex-direction:column;align-items:flex-start}.brand img{width:160px}.brand-title{font-size:13px;padding-left:12px}h1{font-size:36px}.page{padding:24px 14px}.card{padding:22px}.actions .btn{width:100%}}
   </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="topbar-inner">
-      <a class="brand" href="index.html">
-        <img src="assets/logo-jorlan.png" alt="Grupo Jorlan" />
-        <div class="brand-title">Confirmação de presença</div>
-      </a>
-    </div>
-  </header>
-
-  <main class="page">
-    <section class="card" id="app">
-      <h1>Carregando...</h1>
-      <p>Estamos buscando sua inscrição.</p>
-    </section>
-  </main>
-
+  <header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html"><img src="assets/logo-jorlan.png" alt="Grupo Jorlan"><div class="brand-title">Confirmação de presença</div></a></div></header>
+  <main class="page"><section class="card" id="app"><h1>Carregando...</h1><p>Estamos buscando sua inscrição.</p></section></main>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/config.js"></script>
   <script>
-    const cfg = window.JORLAN_TRAINING_CONFIG || window.APP_CONFIG || {};
-    const token = new URLSearchParams(location.search).get('token') || '';
-    const app = document.getElementById('app');
-
-    function esc(text) {
-      return String(text ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-    }
-
-    function fmtDateBR(date) {
-      const [y,m,d] = String(date || '').slice(0,10).split('-');
-      return d && m && y ? `${d}/${m}/${y}` : String(date || '');
-    }
-
-    function statusText(status) {
-      return ({pending:'Pendente', confirmed:'Confirmada', present:'Presente', absent:'Falta registrada'})[status] || status || 'Pendente';
-    }
-
-    function client() {
-      if (!window.supabase || !cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) throw new Error('Configuração do Supabase não encontrada.');
-      return window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
-    }
-
-    async function rpc(name, params) {
-      const { data, error } = await client().rpc(name, params || {});
-      if (error) throw new Error(error.message || 'Erro ao consultar inscrição.');
-      return data;
-    }
-
-    async function load() {
-      if (!token) {
-        app.innerHTML = '<h1>Link inválido</h1><p>O link de confirmação está incompleto.</p>';
-        return;
-      }
-      try {
-        const data = await rpc('training_get_presence', { p_attendance_token: token });
-        if (!data || data.success === false) throw new Error(data?.message || 'Inscrição não encontrada.');
-
-        const already = ['confirmed','present'].includes(data.attendance_status);
-        app.innerHTML = `
-          <h1>${already ? 'Presença confirmada' : 'Confirmar presença'}</h1>
-          <p>${already ? 'Sua participação já está confirmada.' : 'Confirme sua participação no treinamento abaixo.'}</p>
-          <div class="details">
-            <strong>${esc(data.name)}</strong>
-            <div>${esc(fmtDateBR(data.slot_date))} • ${esc(String(data.slot_time || '').slice(0,5))}</div>
-            <div>${esc(data.store || '')} ${data.city ? '• ' + esc(data.city) : ''}</div>
-            <div>Status: <b>${esc(statusText(data.attendance_status))}</b></div>
-          </div>
-          ${already ? '<a class="btn secondary" href="index.html">Voltar</a>' : '<button class="btn" id="confirmBtn" type="button">Confirmar minha presença</button>'}
-          <div id="feedback" class="feedback"></div>
-        `;
-        const btn = document.getElementById('confirmBtn');
-        if (btn) btn.addEventListener('click', confirmPresence);
-      } catch (error) {
-        app.innerHTML = `<h1>Não localizado</h1><p>${esc(error.message || 'Não foi possível encontrar sua inscrição.')}</p>`;
-      }
-    }
-
-    async function confirmPresence() {
-      const btn = document.getElementById('confirmBtn');
-      const feedback = document.getElementById('feedback');
-      btn.disabled = true;
-      btn.textContent = 'Confirmando...';
-      try {
-        const data = await rpc('training_confirm_presence', { p_attendance_token: token });
-        if (!data || data.success === false) throw new Error(data?.message || 'Não foi possível confirmar presença.');
-        feedback.className = 'feedback show success';
-        feedback.textContent = 'Presença confirmada com sucesso.';
-        setTimeout(load, 700);
-      } catch (error) {
-        feedback.className = 'feedback show error';
-        feedback.textContent = error.message || 'Erro ao confirmar presença.';
-        btn.disabled = false;
-        btn.textContent = 'Confirmar minha presença';
-      }
-    }
-
+    const cfg=window.JORLAN_TRAINING_CONFIG||window.APP_CONFIG||{};const token=new URLSearchParams(location.search).get('token')||'';const app=document.getElementById('app');let current=null;
+    function esc(t){return String(t??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+    function fmtDateBR(date){const[y,m,d]=String(date||'').slice(0,10).split('-');return d&&m&&y?`${d}/${m}/${y}`:String(date||'')}
+    function statusText(s){return({pending:'Pendente',confirmed:'Confirmada',present:'Presente',absent:'Falta registrada'})[s]||s||'Pendente'}
+    function client(){if(!window.supabase||!cfg.SUPABASE_URL||!cfg.SUPABASE_ANON_KEY)throw new Error('Configuração do Supabase não encontrada.');return window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY)}
+    async function rpc(name,params){const{data,error}=await client().rpc(name,params||{});if(error)throw new Error(error.message||'Erro ao consultar inscrição.');return data}
+    function pad(n){return String(n).padStart(2,'0')}
+    function localStart(data){const [y,m,d]=String(data.slot_date||'').slice(0,10).split('-').map(Number);const [hh,mm]=String(data.slot_time||'10:00').slice(0,5).split(':').map(Number);return new Date(y,m-1,d,hh||10,mm||0,0)}
+    function calStamp(date){return date.getUTCFullYear()+pad(date.getUTCMonth()+1)+pad(date.getUTCDate())+'T'+pad(date.getUTCHours())+pad(date.getUTCMinutes())+'00Z'}
+    function calendarTitle(){return 'Treinamento Grupo Jorlan'}
+    function calendarDescription(data){return `Treinamento confirmado para ${data.name}. Loja: ${data.store||''}.`}
+    function googleLink(data){const start=localStart(data),end=new Date(start.getTime()+2*60*60*1000);const params=new URLSearchParams({action:'TEMPLATE',text:calendarTitle(),dates:calStamp(start)+'/'+calStamp(end),details:calendarDescription(data),location:[data.store,data.city].filter(Boolean).join(' - ')});return 'https://calendar.google.com/calendar/render?'+params.toString()}
+    function downloadICS(data){const start=localStart(data),end=new Date(start.getTime()+2*60*60*1000);const uid='jorlan-'+(data.booking_id||token)+'@agenda-treinamento';const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Grupo Jorlan//Agenda Treinamento//PT-BR','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT','UID:'+uid,'DTSTAMP:'+calStamp(new Date()),'DTSTART:'+calStamp(start),'DTEND:'+calStamp(end),'SUMMARY:'+calendarTitle(),'DESCRIPTION:'+calendarDescription(data).replace(/\n/g,'\\n'),'LOCATION:'+[data.store,data.city].filter(Boolean).join(' - '),'END:VEVENT','END:VCALENDAR'].join('\r\n');const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='treinamento-grupo-jorlan.ics';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+    function calendarButtons(data){return `<div class="actions"><button class="btn success" id="appleCal" type="button">Adicionar no Apple/iPhone</button><a class="btn secondary" href="${esc(googleLink(data))}" target="_blank" rel="noopener">Adicionar no Google/Android</a></div>`}
+    async function load(){if(!token){app.innerHTML='<h1>Link inválido</h1><p>O link de confirmação está incompleto.</p>';return}try{const data=await rpc('training_get_presence',{p_attendance_token:token});if(!data||data.success===false)throw new Error(data?.message||'Inscrição não encontrada.');current=data;const already=['confirmed','present'].includes(data.attendance_status);app.innerHTML=`<h1>${already?'Presença confirmada':'Confirmar presença'}</h1><p>${already?'Sua participação está confirmada. Adicione o treinamento ao calendário para não esquecer.':'Confirme sua participação no treinamento abaixo.'}</p><div class="details"><strong>${esc(data.name)}</strong><div>${esc(fmtDateBR(data.slot_date))} • ${esc(String(data.slot_time||'').slice(0,5))}</div><div>${esc(data.store||'')} ${data.city?'• '+esc(data.city):''}</div><div>Status: <b>${esc(statusText(data.attendance_status))}</b></div></div>${already?calendarButtons(data)+'<div class="actions"><a class="btn secondary" href="index.html">Voltar</a></div>':'<button class="btn" id="confirmBtn" type="button">Confirmar minha presença</button>'}<div id="feedback" class="feedback"></div>`;const btn=document.getElementById('confirmBtn');if(btn)btn.addEventListener('click',confirmPresence);const apple=document.getElementById('appleCal');if(apple)apple.addEventListener('click',()=>downloadICS(current));}catch(e){app.innerHTML=`<h1>Não localizado</h1><p>${esc(e.message||'Não foi possível encontrar sua inscrição.')}</p>`}}
+    async function confirmPresence(){const btn=document.getElementById('confirmBtn'),fb=document.getElementById('feedback');btn.disabled=true;btn.textContent='Confirmando...';try{const data=await rpc('training_confirm_presence',{p_attendance_token:token});if(!data||data.success===false)throw new Error(data?.message||'Não foi possível confirmar presença.');fb.className='feedback show success';fb.textContent='Presença confirmada com sucesso.';setTimeout(load,600)}catch(e){fb.className='feedback show error';fb.textContent=e.message||'Erro ao confirmar presença.';btn.disabled=false;btn.textContent='Confirmar minha presença'}}
     load();
   </script>
 </body>

@@ -3,254 +3,114 @@
 
   const CONFIG = window.JORLAN_TRAINING_CONFIG || window.APP_CONFIG || {};
   const TOKEN_KEYS = ['jorlan_admin_session_token', 'jorlanTrainingAdminToken'];
-  let supabaseClient = null;
-  let editingSlot = null;
-  let observerStarted = false;
-  let attempts = 0;
+  let sb = null;
+  let state = { view: 'future', slots: [], expanded: new Set(), loaded: false };
+  let timers = [];
 
-  const $ = (id) => document.getElementById(id);
-  const qs = (s, r = document) => r.querySelector(s);
-  const qsa = (s, r = document) => Array.from(r.querySelectorAll(s));
-  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  function $(id) { return document.getElementById(id); }
+  function qs(sel, root = document) { return root.querySelector(sel); }
+  function qsa(sel, root = document) { return Array.from(root.querySelectorAll(sel)); }
+  function token() { for (const k of TOKEN_KEYS) { const v = localStorage.getItem(k) || sessionStorage.getItem(k); if (v) return v; } return ''; }
+  function client() { if (!window.supabase || !CONFIG.SUPABASE_URL || !CONFIG.SUPABASE_ANON_KEY) return null; if (!sb) sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY); return sb; }
+  async function rpc(name, params) { const c = client(); if (!c) throw new Error('Supabase não configurado.'); const { data, error } = await c.rpc(name, params || {}); if (error) throw new Error(error.message || 'Erro na comunicação com o banco.'); return data; }
+  function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+  function today(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+  function fmtDateBR(date){const [y,m,d]=String(date||'').slice(0,10).split('-');return d&&m&&y?`${d}/${m}/${y}`:String(date||'')}
+  function normDate(d){return String(d||'').slice(0,10)}
+  function normTime(t){return String(t||'').slice(0,5)}
+  function digits(v){return String(v||'').replace(/\D/g,'')}
+  function brPhone(v){let d=digits(v);if(!d)return'';if(d.startsWith('55')&&d.length>=12)return d;if(d.length>=10&&d.length<=11)return'55'+d;return d}
+  function isWeekday(date){const [y,m,d]=String(date||'').split('-').map(Number);const dt=new Date(y,m-1,d);const day=dt.getDay();return day>=1&&day<=5}
+  function statusLabel(s){return({pending:'Pendente',confirmed:'Confirmou',present:'Presente',absent:'Faltou'})[String(s||'pending')]||s}
+  function bookingName(b){return b.name||b.participant_name||''}
+  function bookingPhone(b){return b.phone||b.participant_phone||''}
+  function bookingEmail(b){return b.email||b.participant_email||''}
+  function bookingRole(b){return b.role||b.participant_role||''}
+  function bookingStore(b){return b.store||b.participant_store||''}
+  function bookingCity(b){return b.city||b.participant_city||''}
+  function managerName(b){return b.managerName||b.manager_name||''}
+  function managerPhone(b){return b.managerPhone||b.manager_phone||''}
+  function managerDigits(b){return b.managerPhoneDigits||b.manager_phone_digits||managerPhone(b)}
+  function attendanceToken(b){return b.attendanceToken||b.attendance_token||''}
+  function attendanceStatus(b){return b.attendanceStatus||b.attendance_status||'pending'}
+  function presenceUrl(b){const t=attendanceToken(b);return t?`${location.origin}${location.pathname.replace(/painel-administrador\.html$/,'presenca.html')}?token=${encodeURIComponent(t)}`:''}
+  function presenceMsg(b,slot){return `Olá, ${bookingName(b)}! Tudo bem?\n\nPassando para confirmar sua presença no treinamento de Seminovos.\n\nTurma: ${fmtDateBR(slot.date)} às ${slot.time}\n\nConfirme sua presença neste link:\n${presenceUrl(b)}\n\nObrigado.`}
+  function normalizeSlot(s){const bookings=s.bookings||s.participants||s.inscritos||[];const capacity=Number(s.capacity??s.max_capacity??8);const occupied=Number(s.occupied??s.booked??bookings.length??0);const remaining=Number(s.remaining??s.available??Math.max(0,capacity-occupied));return{raw:s,id:s.id||s.slot_id,date:normDate(s.date||s.slot_date),time:normTime(s.time||s.slot_time),capacity,occupied,remaining,blocked:Boolean(s.blocked??s.is_blocked??false),bookings}}
 
-  function getToken() {
-    for (const key of TOKEN_KEYS) {
-      const value = localStorage.getItem(key) || sessionStorage.getItem(key);
-      if (value) return value;
-    }
-    return '';
-  }
-  function getClient() {
-    if (!window.supabase || !CONFIG.SUPABASE_URL || !CONFIG.SUPABASE_ANON_KEY) return null;
-    if (!supabaseClient) supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-    return supabaseClient;
-  }
-  async function rpc(name, params) {
-    const client = getClient();
-    if (!client) throw new Error('Supabase não configurado.');
-    const { data, error } = await client.rpc(name, params || {});
-    if (error) throw new Error(error.message || 'Erro na comunicação com o banco.');
-    return data;
-  }
-  function todayISO() {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  }
-  function isoToBR(iso) {
-    const [y,m,d] = String(iso || '').slice(0,10).split('-');
-    return d && m && y ? `${d}/${m}/${y}` : '';
-  }
-  function brToIso(text) {
-    const m = String(text || '').match(/(\d{2})\/(\d{2})\/(\d{4})/);
-    return m ? `${m[3]}-${m[2]}-${m[1]}` : '';
-  }
-  function parseTime(text) {
-    const m = String(text || '').match(/([01]\d|2[0-3]):[0-5]\d/);
-    return m ? m[0] : '';
-  }
-  function localDate(iso) {
-    const [y,m,d] = String(iso || '').split('-').map(Number);
-    if (!y || !m || !d) return null;
-    return new Date(y, m - 1, d);
-  }
-  function isWeekday(iso) {
-    const d = localDate(iso);
-    if (!d) return false;
-    const day = d.getDay();
-    return day >= 1 && day <= 5;
-  }
-  function parseWeekRange() {
-    const text = $('agenda-horizon')?.textContent || '';
-    const dates = text.match(/\d{2}\/\d{2}\/\d{4}/g) || [];
-    if (dates.length < 2) return null;
-    const start = localDate(brToIso(dates[0]));
-    const end = localDate(brToIso(dates[1]));
-    return start && end ? { start, end } : null;
-  }
-  function slotDateFromCard(card) {
-    return brToIso(qs('.slot-title', card)?.textContent || '');
-  }
-  function slotFromCard(card) {
-    const toggle = qs('[data-slot-toggle]', card);
-    const title = qs('.slot-title', card)?.textContent || '';
-    const minis = qsa('.mini strong', card).map(el => Number(String(el.textContent || '').replace(/\D/g,'')) || 0);
-    const status = qs('.pill-status', card)?.textContent || '';
-    if (!toggle) return null;
-    return { id: toggle.dataset.slotToggle, date: brToIso(title), time: parseTime(title), capacity: minis[0] || 8, booked: minis[1] || 0, available: minis[2] || 0, blocked: toggle.dataset.blocked === 'true' || /bloqueada|fechada/i.test(status) };
-  }
-  function showAgendaFeedback(type, message) {
-    const box = $('agenda-feedback');
-    if (!box) { alert(message); return; }
-    box.className = 'feedback show ' + (type === 'success' ? 'success' : 'error');
-    box.textContent = message;
-  }
-  function showModalFeedback(type, text) {
-    const box = $('schedulerFeedback');
-    if (!box) return;
-    if (!text) { box.className = 'scheduler-feedback'; box.textContent = ''; return; }
-    box.className = 'scheduler-feedback show ' + (type === 'success' ? 'success' : 'error');
-    box.textContent = text;
-  }
-
-  function injectStyles() {
-    if ($('schedulerStyles')) return;
-    const style = document.createElement('style');
-    style.id = 'schedulerStyles';
-    style.textContent = `
+  function injectStyles(){
+    if($('schedulerListStyles'))return;
+    const style=document.createElement('style');
+    style.id='schedulerListStyles';
+    style.textContent=`
       #panel-agenda .stats{display:none!important}
-      #panel-agenda .agenda-grid{display:block!important}
-      #panel-agenda .slot-card{border:1px solid #eee8df!important;border-radius:18px!important;padding:13px 14px!important;margin:0 0 10px!important;box-shadow:0 6px 18px rgba(0,0,0,.04)!important}
-      #panel-agenda .slot-top{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:10px!important;margin-bottom:8px!important}
-      #panel-agenda .slot-title{font-size:18px!important;letter-spacing:-.025em!important}
-      #panel-agenda .slot-sub{font-size:13px!important;margin-top:2px!important}
-      #panel-agenda .pill-status{min-width:auto!important;padding:5px 9px!important;font-size:11px!important}
-      #panel-agenda .slot-metrics{display:flex!important;grid-template-columns:none!important;gap:7px!important;margin:8px 0!important}
-      #panel-agenda .mini{padding:7px 9px!important;border-radius:12px!important;min-width:86px!important}
-      #panel-agenda .mini strong{font-size:17px!important}
-      #panel-agenda .participant-list{margin-top:8px!important;padding-top:8px!important}
-      #panel-agenda .participant{grid-template-columns:minmax(0,1fr)!important;padding:8px 0!important;gap:6px!important}
-      #panel-agenda .participant strong{font-size:14px!important}
-      #panel-agenda .participant small{font-size:12px!important}
       #prev-week,#extend-week{display:none!important}
-      .scheduler-create-btn{background:#0a0a0b!important;color:#fff!important;border-color:#0a0a0b!important}
-      .scheduler-day-filter{display:flex;align-items:end;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #e7e2db;border-radius:16px;padding:8px 10px}
-      .scheduler-day-filter label{display:block;font-size:11px;font-weight:900;color:#565960;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em}
-      .scheduler-day-filter input{border:1px solid #d9d4cc;border-radius:12px;padding:8px 10px;min-height:36px}
-      .scheduler-slot-actions,.booking-admin-actions{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 4px!important}
-      .scheduler-slot-actions .btn,.booking-admin-actions .btn,#panel-agenda .btn{padding:7px 10px!important;border-radius:12px!important;font-size:12px!important;min-height:34px!important}
-      .scheduler-hide-old-toggle{display:none!important}
-      .scheduler-date-empty{padding:18px;color:#6e727a;font-weight:750;border:1px dashed #d9d4cc;border-radius:18px;background:#fff;margin-top:10px}
-      .scheduler-modal{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.38)}.scheduler-modal.show{display:flex}.scheduler-card{width:min(100%,660px);background:#fff;border-radius:28px;box-shadow:0 20px 60px rgba(0,0,0,.18);padding:26px}.scheduler-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}.scheduler-head h3{margin:0 0 6px;font-size:34px;line-height:.96;font-weight:950;letter-spacing:-.05em}.scheduler-head p{margin:0;color:#6e727a;font-weight:650}.scheduler-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.scheduler-field{display:flex;flex-direction:column;gap:7px}.scheduler-field label{font-size:13px;font-weight:850;color:#565960}.scheduler-field input,.scheduler-field select{border:1px solid #d9d4cc;border-radius:14px;padding:12px 13px;min-height:46px;background:#fff}.scheduler-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.scheduler-feedback{display:none;margin:0 0 14px;border-radius:14px;padding:12px 14px;font-size:14px;font-weight:800}.scheduler-feedback.show{display:block}.scheduler-feedback.success{background:#e7f5ee;color:#256947}.scheduler-feedback.error{background:#f8e8e6;color:#b33a2d}
-      @media(max-width:720px){.scheduler-grid{grid-template-columns:1fr}.scheduler-head h3{font-size:28px}}
+      #panel-agenda .agenda-grid{display:block!important}
+      .agenda-list-controls{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid #e7e2db;border-radius:18px;padding:10px 12px;margin-bottom:12px;box-shadow:0 6px 18px rgba(0,0,0,.035)}
+      .agenda-switch{display:flex;gap:7px;flex-wrap:wrap}.agenda-switch .active{background:#0a0a0b!important;color:#fff!important;border-color:#0a0a0b!important}
+      .agenda-mini-note{font-size:12px;color:#6e727a;font-weight:800}
+      .agenda-list-card{background:#fff;border-radius:22px;box-shadow:0 10px 32px rgba(0,0,0,.05);overflow:hidden;border:1px solid #eee8df}
+      .agenda-list-table{width:100%;border-collapse:collapse;min-width:1120px;background:#fff}.agenda-list-table th{padding:11px 10px;background:#f7f4f0;color:#565960;font-size:11px;text-align:left;text-transform:uppercase;letter-spacing:.05em}.agenda-list-table td{padding:10px;border-top:1px solid #efebe5;vertical-align:middle;font-size:13px}.agenda-list-table .btn{padding:7px 9px!important;border-radius:11px!important;font-size:12px!important;min-height:32px!important}.agenda-actions{display:flex;gap:6px;flex-wrap:wrap}.status-pill{display:inline-flex;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:900}.status-pill.open{background:#e7f5ee;color:#256947}.status-pill.closed{background:#f8e8e6;color:#b33a2d}.slot-detail{background:#fbfaf8!important;padding:0!important}.participants-box{padding:8px 10px 13px}.participants-table{width:100%;border-collapse:collapse;min-width:1000px;background:transparent}.participants-table th{background:#fff!important}.participants-table td{background:#fbfaf8}.participant-actions{display:flex;gap:5px;flex-wrap:wrap}.attendance-chip{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:900;background:#fff8dd;color:#7c5c14}.attendance-chip.ok{background:#e7f5ee;color:#256947}.attendance-chip.bad{background:#f8e8e6;color:#b33a2d}.scheduler-modal{position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:1000;display:none;align-items:center;justify-content:center;padding:18px}.scheduler-modal.show{display:flex}.scheduler-card{width:min(100%,660px);max-height:92vh;overflow:auto;background:#fff;border-radius:26px;box-shadow:0 20px 60px rgba(0,0,0,.18);padding:24px}.scheduler-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:16px}.scheduler-head h3{margin:0;font-size:30px;line-height:1;font-weight:950;letter-spacing:-.04em}.scheduler-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.scheduler-field{display:flex;flex-direction:column;gap:7px;margin-bottom:10px}.scheduler-field label{font-size:12px;font-weight:900;color:#565960;text-transform:uppercase;letter-spacing:.04em}.scheduler-field input,.scheduler-field select{border:1px solid #d9d4cc;border-radius:14px;padding:10px 12px;min-height:42px}.scheduler-feedback{display:none;margin:0 0 12px;border-radius:14px;padding:12px 14px;font-weight:850}.scheduler-feedback.show{display:block}.scheduler-feedback.success{background:#e7f5ee;color:#256947}.scheduler-feedback.error{background:#f8e8e6;color:#b33a2d}@media(max-width:760px){.agenda-list-card{overflow:auto}.scheduler-grid{grid-template-columns:1fr}}
     `;
     document.head.appendChild(style);
   }
 
-  function injectDateFilter() {
-    if ($('schedulerDayFilter')) return;
-    const toolbar = qs('#panel-agenda .toolbar-left') || qs('#panel-agenda .toolbar');
-    if (!toolbar) return;
-    const box = document.createElement('div');
-    box.id = 'schedulerDayFilter';
-    box.className = 'scheduler-day-filter';
-    box.innerHTML = `<div><label for="schedulerDayInput">Data</label><input id="schedulerDayInput" type="date" value="${todayISO()}"></div><button class="btn" id="schedulerDayGo" type="button">Ver dia</button>`;
-    toolbar.prepend(box);
-    $('schedulerDayGo').addEventListener('click', () => navigateToDate($('schedulerDayInput').value));
-    $('schedulerDayInput').addEventListener('change', () => navigateToDate($('schedulerDayInput').value));
+  function showPageFeedback(type,msg){const box=$('agenda-feedback');if(!box){alert(msg);return}box.className='feedback show '+(type==='success'?'success':'error');box.textContent=msg;box.scrollIntoView({behavior:'smooth',block:'nearest'})}
+  function modalFeedback(type,msg){const box=$('schedulerFeedback');if(!box)return;box.className='scheduler-feedback show '+(type==='success'?'success':'error');box.textContent=msg}
+
+  async function load(){
+    if(!token()||!client())return;
+    try{const data=await rpc('training_admin_get_state',{p_session_token:token()});const parsed=typeof data==='string'?JSON.parse(data):data;state.slots=(parsed.slots||[]).map(normalizeSlot).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));state.loaded=true;render();}
+    catch(e){showPageFeedback('error',e.message||'Não foi possível carregar agenda.');}
   }
 
-  function injectPlusButton() {
-    if ($('schedulerOpen')) return;
-    const toolbarRight = qs('#panel-agenda .toolbar-right') || qs('#panel-agenda .toolbar-left') || qs('#panel-agenda .toolbar');
-    if (!toolbarRight) return;
-    const button = document.createElement('button');
-    button.id = 'schedulerOpen';
-    button.type = 'button';
-    button.className = 'btn dark scheduler-create-btn';
-    button.innerHTML = '<span style="font-size:18px;line-height:0">+</span> Nova turma';
-    button.addEventListener('click', openCreateModal);
-    toolbarRight.prepend(button);
-    const warning = $('agenda-warning');
-    if (warning) { warning.className = 'notice show'; warning.textContent = 'Agenda manual: escolha o dia no filtro e use “+ Nova turma” para criar treinamentos.'; }
+  function filteredSlots(){const t=today();if(state.view==='past')return state.slots.filter(s=>s.date<t).sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));return state.slots.filter(s=>s.date>=t).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));}
+  function nextSlotText(){const next=state.slots.filter(s=>s.date>=today()).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time))[0];return next?`Próxima turma: ${fmtDateBR(next.date)} às ${next.time}`:'Nenhuma turma futura criada.'}
+  function slotStatus(s){return s.blocked?'<span class="status-pill closed">Fechada</span>':'<span class="status-pill open">Aberta</span>'}
+  function attHtml(st){const cls=st==='present'||st==='confirmed'?'ok':st==='absent'?'bad':'';return `<span class="attendance-chip ${cls}">${esc(statusLabel(st))}</span>`}
+
+  function render(){
+    const grid=$('agenda-grid');if(!grid)return;
+    const toolbar=$('#panel-agenda .toolbar-right')||$('#panel-agenda .toolbar');
+    if(toolbar&&!$('agendaNewSlot')){const b=document.createElement('button');b.id='agendaNewSlot';b.className='btn dark';b.type='button';b.textContent='+ Nova turma';b.onclick=()=>openSlotModal();toolbar.prepend(b)}
+    const list=filteredSlots();
+    const warning=$('agenda-warning');if(warning){warning.className='notice show';warning.textContent='Agenda em lista: escolha Futuras ou Finalizadas. Futuras começa a partir de hoje.'}
+    grid.innerHTML=`<div class="agenda-list-controls"><div class="agenda-switch"><button class="btn ${state.view==='future'?'active':''}" data-view="future">Futuras</button><button class="btn ${state.view==='past'?'active':''}" data-view="past">Finalizadas</button><button class="btn" data-refresh>Atualizar</button><button class="btn dark" data-new-slot>+ Nova turma</button></div><div class="agenda-mini-note">${esc(nextSlotText())}</div></div><div class="agenda-list-card"><div style="overflow:auto"><table class="agenda-list-table"><thead><tr><th>Data</th><th>Hora</th><th>Status</th><th>Inscritos</th><th>Vagas</th><th>Presença</th><th>Ações</th></tr></thead><tbody>${list.map(slotRow).join('')||`<tr><td colspan="7" style="padding:18px;color:#6e727a">Nenhuma turma nesta visão.</td></tr>`}</tbody></table></div></div>`;
+    qsa('[data-view]').forEach(b=>b.onclick=()=>{state.view=b.dataset.view;render()});
+    qs('[data-refresh]',grid)?.addEventListener('click',load);
+    qs('[data-new-slot]',grid)?.addEventListener('click',()=>openSlotModal());
+    qsa('[data-toggle-detail]',grid).forEach(b=>b.onclick=()=>{const id=b.dataset.toggleDetail;if(state.expanded.has(id))state.expanded.delete(id);else state.expanded.add(id);render()});
+    qsa('[data-edit-slot]',grid).forEach(b=>b.onclick=()=>openSlotModal(findSlot(b.dataset.editSlot)));
+    qsa('[data-close-slot]',grid).forEach(b=>b.onclick=()=>toggleSlot(findSlot(b.dataset.closeSlot)));
+    qsa('[data-send-slot]',grid).forEach(b=>b.onclick=()=>sendSlotConfirmations(findSlot(b.dataset.sendSlot)));
+    qsa('[data-wa-presence]',grid).forEach(b=>b.onclick=()=>sendPresence(findBooking(b.dataset.waPresence)));
+    qsa('[data-present]').forEach(b=>b.onclick=()=>markAttendance(b.dataset.present,'present'));
+    qsa('[data-absent]').forEach(b=>b.onclick=()=>markAttendance(b.dataset.absent,'absent'));
+    qsa('[data-edit-booking]').forEach(b=>b.onclick=()=>openBookingModal(findBooking(b.dataset.editBooking)));
+    qsa('[data-cancel-booking]').forEach(b=>b.onclick=()=>cancelBooking(findBooking(b.dataset.cancelBooking)));
+    ensureModals();
   }
 
-  function injectModal() {
-    if ($('schedulerModal')) return;
-    const modal = document.createElement('div');
-    modal.id = 'schedulerModal';
-    modal.className = 'scheduler-modal';
-    modal.innerHTML = `<div class="scheduler-card" role="dialog" aria-modal="true"><div class="scheduler-head"><div><h3 id="schedulerTitle">Nova turma</h3><p id="schedulerSubtitle">Data, horário, vagas e status da turma.</p></div><button class="btn small" id="schedulerClose" type="button">Fechar</button></div><div id="schedulerFeedback" class="scheduler-feedback"></div><form id="schedulerForm"><div class="scheduler-grid"><div class="scheduler-field"><label>Data</label><input id="schedulerDate" type="date" required></div><div class="scheduler-field"><label>Horário</label><input id="schedulerTime" type="time" value="10:00" required></div><div class="scheduler-field"><label>Participantes/vagas</label><input id="schedulerCapacity" type="number" min="1" max="99" value="20" required></div><div class="scheduler-field"><label>Status</label><select id="schedulerStatus"><option value="true">Aberta para inscrição</option><option value="false">Inscrições fechadas</option></select></div></div><div class="scheduler-actions"><button class="btn dark" id="schedulerSubmit" type="submit">Salvar turma</button><button class="btn danger" id="schedulerModalCloseSlot" type="button" style="display:none">Fechar inscrições</button><button class="btn" type="button" id="schedulerCancel">Cancelar</button></div></form></div>`;
-    document.body.appendChild(modal);
-    $('schedulerClose').onclick = closeModal; $('schedulerCancel').onclick = closeModal;
-    $('schedulerModalCloseSlot').onclick = () => editingSlot && closeSlot(editingSlot);
-    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
-    $('schedulerForm').addEventListener('submit', saveSlot);
-  }
-  function openCreateModal() {
-    editingSlot = null;
-    $('schedulerTitle').textContent = 'Nova turma';
-    $('schedulerSubtitle').textContent = 'Crie a turma no dia filtrado ou em outro dia útil.';
-    $('schedulerDate').value = $('schedulerDayInput')?.value || todayISO();
-    $('schedulerTime').value = '10:00'; $('schedulerCapacity').value = '20'; $('schedulerStatus').value = 'true';
-    $('schedulerSubmit').textContent = 'Salvar turma'; $('schedulerModalCloseSlot').style.display = 'none'; showModalFeedback('', ''); $('schedulerModal').classList.add('show');
-  }
-  function openEditModal(slot) {
-    editingSlot = slot;
-    $('schedulerTitle').textContent = 'Editar turma';
-    $('schedulerSubtitle').textContent = `${isoToBR(slot.date)} • ${slot.time} — ${slot.booked}/${slot.capacity} inscritos`;
-    $('schedulerDate').value = slot.date; $('schedulerTime').value = slot.time; $('schedulerCapacity').value = slot.capacity; $('schedulerStatus').value = slot.blocked ? 'false' : 'true';
-    $('schedulerSubmit').textContent = 'Salvar alterações'; $('schedulerModalCloseSlot').style.display = slot.blocked ? 'none' : 'inline-flex'; showModalFeedback('', ''); $('schedulerModal').classList.add('show');
-  }
-  function closeModal() { $('schedulerModal')?.classList.remove('show'); }
+  function slotRow(s){const confirmed=s.bookings.filter(b=>['confirmed','present'].includes(attendanceStatus(b))).length;const expanded=state.expanded.has(s.id);return `<tr><td><b>${fmtDateBR(s.date)}</b></td><td>${esc(s.time)}</td><td>${slotStatus(s)}</td><td>${s.occupied}/${s.capacity}</td><td>${s.remaining}</td><td>${confirmed}/${s.bookings.length||0}</td><td><div class="agenda-actions"><button class="btn" data-toggle-detail="${esc(s.id)}">${expanded?'Ocultar':'Inscritos'}</button><button class="btn" data-edit-slot="${esc(s.id)}">Editar</button><button class="btn ${s.blocked?'success':'danger'}" data-close-slot="${esc(s.id)}">${s.blocked?'Reabrir':'Fechar'}</button><button class="btn" data-send-slot="${esc(s.id)}">Enviar confirmação</button></div></td></tr>${expanded?participantDetail(s):''}`}
+  function participantDetail(s){return `<tr><td class="slot-detail" colspan="7"><div class="participants-box"><table class="participants-table"><thead><tr><th>Participante</th><th>Contato</th><th>Loja</th><th>Gerente</th><th>Presença</th><th>Ações</th></tr></thead><tbody>${s.bookings.map(b=>participantRow(b,s)).join('')||`<tr><td colspan="6">Sem inscritos nesta turma.</td></tr>`}</tbody></table></div></td></tr>`}
+  function participantRow(b,s){const md=brPhone(managerDigits(b));const bp=brPhone(bookingPhone(b));return `<tr><td><b>${esc(bookingName(b))}</b><br><span style="color:#6e727a">${esc(bookingRole(b))}</span></td><td>${esc(bookingPhone(b))}<br><span style="color:#6e727a">${esc(bookingEmail(b))}</span></td><td>${esc(bookingStore(b))}<br><span style="color:#6e727a">${esc(bookingCity(b))}</span></td><td>${esc(managerName(b)||'Não localizado')}<br>${md?`<a class="btn" href="tel:+${md}">Ligar</a> <a class="btn" href="https://wa.me/${md}" target="_blank" rel="noopener">WhatsApp</a>`:''}</td><td>${attHtml(attendanceStatus(b))}</td><td><div class="participant-actions"><button class="btn" data-wa-presence="${esc(b.id)}">WhatsApp presença</button><button class="btn success" data-present="${esc(b.id)}">Presente</button><button class="btn danger" data-absent="${esc(b.id)}">Faltou</button><button class="btn" data-edit-booking="${esc(b.id)}">Editar</button><button class="btn danger" data-cancel-booking="${esc(b.id)}">Cancelar</button>${bp?`<a class="btn" href="tel:+${bp}">Ligar</a>`:''}</div></td></tr>`}
 
-  async function saveSlot(event) {
-    event.preventDefault();
-    const date = $('schedulerDate').value, time = $('schedulerTime').value, capacity = Number($('schedulerCapacity').value || 0), open = $('schedulerStatus').value === 'true';
-    if (!isWeekday(date)) return showModalFeedback('error','Escolha uma data de segunda a sexta-feira.');
-    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) return showModalFeedback('error','Informe um horário válido.');
-    if (!capacity || capacity < 1 || capacity > 99) return showModalFeedback('error','Informe vagas entre 1 e 99.');
-    if (editingSlot && capacity < editingSlot.booked) return showModalFeedback('error',`Não é possível reduzir para ${capacity}. Já existem ${editingSlot.booked} inscritos ativos.`);
-    const submit = $('schedulerSubmit'); submit.disabled = true; submit.textContent = 'Salvando...';
-    try {
-      if (editingSlot) await rpc('training_admin_update_slot', { p_session_token:getToken(), p_slot_id:editingSlot.id, p_slot_date:date, p_slot_time:time, p_capacity:capacity, p_is_open:open });
-      else await rpc('training_admin_create_custom_slot', { p_session_token:getToken(), p_slot_date:date, p_slot_time:time, p_capacity:capacity, p_is_open:open });
-      if ($('schedulerDayInput')) $('schedulerDayInput').value = date;
-      showModalFeedback('success','Turma salva. Atualizando...');
-      await navigateToDate(date); setTimeout(closeModal, 500);
-    } catch(e) { showModalFeedback('error', e.message || 'Não foi possível salvar.'); }
-    finally { submit.disabled = false; submit.textContent = editingSlot ? 'Salvar alterações' : 'Salvar turma'; }
-  }
+  function findSlot(id){return state.slots.find(s=>String(s.id)===String(id))||null}
+  function findBooking(id){for(const s of state.slots){const b=s.bookings.find(x=>String(x.id)===String(id));if(b)return{booking:b,slot:s}}return null}
+  function sendPresence(found){if(!found)return;const phone=brPhone(bookingPhone(found.booking));if(!phone)return showPageFeedback('error','Telefone do candidato não localizado.');window.open(`https://wa.me/${phone}?text=${encodeURIComponent(presenceMsg(found.booking,found.slot))}`,'_blank','noopener')}
+  function sendSlotConfirmations(slot){if(!slot||!slot.bookings.length)return showPageFeedback('error','Turma sem inscritos.');if(!confirm(`Abrir WhatsApp para ${slot.bookings.length} inscrito(s) desta turma?`))return;slot.bookings.forEach((b,i)=>setTimeout(()=>sendPresence({booking:b,slot}),i*450))}
+  async function markAttendance(id,status){try{await rpc('training_admin_mark_attendance',{p_session_token:token(),p_booking_id:id,p_attendance_status:status});showPageFeedback('success',status==='present'?'Presença marcada.':'Falta marcada.');await load()}catch(e){showPageFeedback('error',e.message||'Não foi possível atualizar presença.')}}
+  async function cancelBooking(found){if(!found)return;if(!confirm(`Cancelar inscrição de ${bookingName(found.booking)}?`))return;try{await rpc('training_admin_cancel_booking',{p_session_token:token(),p_booking_id:found.booking.id});showPageFeedback('success','Inscrição cancelada.');await load()}catch(e){showPageFeedback('error',e.message||'Não foi possível cancelar.')}}
+  async function toggleSlot(slot){if(!slot)return;const close=!slot.blocked;if(!confirm(close?'Fechar inscrições desta turma?':'Reabrir inscrições desta turma?'))return;try{await rpc(close?'training_admin_close_slot':'training_admin_open_slot',{p_session_token:token(),p_slot_id:slot.id});showPageFeedback('success',close?'Inscrições fechadas.':'Inscrições reabertas.');await load()}catch(e){showPageFeedback('error',e.message||'Não foi possível alterar a turma.')}}
 
-  async function closeSlot(slot) { try { await rpc('training_admin_close_slot', { p_session_token:getToken(), p_slot_id:slot.id }); showAgendaFeedback('success','Inscrições fechadas.'); await refreshAndFilter(); closeModal(); } catch(e){ showAgendaFeedback('error',e.message||'Não foi possível fechar.'); } }
-  async function openSlot(slot) { try { await rpc('training_admin_open_slot', { p_session_token:getToken(), p_slot_id:slot.id }); showAgendaFeedback('success','Inscrições reabertas.'); await refreshAndFilter(); } catch(e){ showAgendaFeedback('error',e.message||'Não foi possível reabrir.'); } }
-  async function toggleRegistration(slot) { if (slot.blocked) { if (confirm('Reabrir inscrições desta turma?')) await openSlot(slot); } else { if (confirm('Fechar inscrições desta turma? Ela deixará de aparecer para novos cadastros.')) await closeSlot(slot); } }
-
-  function enhanceSlotCards() {
-    qsa('#agenda-grid .slot-card').forEach(card => {
-      if (card.dataset.schedulerEnhanced === 'true') return;
-      const slot = slotFromCard(card);
-      if (!slot?.id) return;
-      card.dataset.schedulerEnhanced = 'true';
-      const oldToggle = qs('[data-slot-toggle]', card); if (oldToggle) oldToggle.classList.add('scheduler-hide-old-toggle');
-      const actions = document.createElement('div'); actions.className = 'scheduler-slot-actions';
-      actions.innerHTML = `<button class="btn small" type="button" data-scheduler-edit>Editar</button><button class="btn small ${slot.blocked?'success':'danger'}" type="button" data-scheduler-close>${slot.blocked?'Reabrir':'Fechar inscrições'}</button>`;
-      const metrics = qs('.slot-metrics', card); if (metrics?.parentNode) metrics.parentNode.insertBefore(actions, metrics.nextSibling); else card.appendChild(actions);
-      qs('[data-scheduler-edit]', actions).onclick = () => openEditModal(slotFromCard(card) || slot);
-      qs('[data-scheduler-close]', actions).onclick = () => toggleRegistration(slotFromCard(card) || slot);
-    });
+  function ensureModals(){
+    if(!$('schedulerSlotModal')){const m=document.createElement('div');m.id='schedulerSlotModal';m.className='scheduler-modal';m.innerHTML=`<div class="scheduler-card"><div class="scheduler-head"><h3 id="slotModalTitle">Nova turma</h3><button class="btn" data-close-modal>Fechar</button></div><div id="schedulerFeedback" class="scheduler-feedback"></div><form id="slotForm"><input type="hidden" name="id"><div class="scheduler-grid"><div class="scheduler-field"><label>Data</label><input name="date" type="date" required></div><div class="scheduler-field"><label>Horário</label><input name="time" type="time" required></div><div class="scheduler-field"><label>Participantes/vagas</label><input name="capacity" type="number" min="1" max="99" required></div><div class="scheduler-field"><label>Status</label><select name="open"><option value="true">Aberta</option><option value="false">Fechada</option></select></div></div><div class="agenda-actions" style="margin-top:14px"><button class="btn dark" type="submit">Salvar</button><button class="btn" type="button" data-close-modal>Cancelar</button></div></form></div>`;document.body.appendChild(m);m.onclick=e=>{if(e.target===m||e.target.closest('[data-close-modal]'))m.classList.remove('show')};$('slotForm').onsubmit=saveSlot}
+    if(!$('schedulerBookingModal')){const m=document.createElement('div');m.id='schedulerBookingModal';m.className='scheduler-modal';m.innerHTML=`<div class="scheduler-card"><div class="scheduler-head"><h3>Editar inscrição</h3><button class="btn" data-close-booking-modal>Fechar</button></div><div id="bookingFeedback" class="scheduler-feedback"></div><form id="bookingForm"><input type="hidden" name="id"><div class="scheduler-grid"><div class="scheduler-field"><label>Nome</label><input name="name" required></div><div class="scheduler-field"><label>E-mail</label><input name="email" type="email" required></div><div class="scheduler-field"><label>Telefone</label><input name="phone"></div><div class="scheduler-field"><label>Cargo</label><input name="role"></div><div class="scheduler-field"><label>Loja</label><input name="store"></div><div class="scheduler-field"><label>Cidade</label><input name="city"></div></div><div class="scheduler-field"><label>Turma</label><select name="slot"></select></div><div class="agenda-actions" style="margin-top:14px"><button class="btn dark" type="submit">Salvar</button><button class="btn" type="button" data-close-booking-modal>Cancelar</button></div></form></div>`;document.body.appendChild(m);m.onclick=e=>{if(e.target===m||e.target.closest('[data-close-booking-modal]'))m.classList.remove('show')};$('bookingForm').onsubmit=saveBooking}
   }
+  function openSlotModal(slot){ensureModals();const f=$('slotForm');f.id.value=slot?.id||'';f.date.value=slot?.date||today();f.time.value=slot?.time||'10:00';f.capacity.value=slot?.capacity||20;f.open.value=slot?String(!slot.blocked):'true';$('slotModalTitle').textContent=slot?'Editar turma':'Nova turma';$('schedulerFeedback').className='scheduler-feedback';$('schedulerSlotModal').classList.add('show')}
+  async function saveSlot(e){e.preventDefault();const f=e.currentTarget;const id=f.id.value,date=f.date.value,time=f.time.value,cap=Number(f.capacity.value),open=f.open.value==='true';if(!isWeekday(date))return modalFeedback('error','Escolha uma data de segunda a sexta.');try{if(id)await rpc('training_admin_update_slot',{p_session_token:token(),p_slot_id:id,p_slot_date:date,p_slot_time:time,p_capacity:cap,p_is_open:open});else await rpc('training_admin_create_custom_slot',{p_session_token:token(),p_slot_date:date,p_slot_time:time,p_capacity:cap,p_is_open:open});modalFeedback('success','Turma salva.');setTimeout(()=>{$('schedulerSlotModal').classList.remove('show');load()},500)}catch(err){modalFeedback('error',err.message||'Não foi possível salvar.')}}
+  function openBookingModal(found){if(!found)return;ensureModals();const {booking:b,slot}=found;const f=$('bookingForm');f.id.value=b.id;f.name.value=bookingName(b);f.email.value=bookingEmail(b);f.phone.value=bookingPhone(b);f.role.value=bookingRole(b);f.store.value=bookingStore(b);f.city.value=bookingCity(b);f.slot.innerHTML=state.slots.filter(s=>!s.blocked||s.id===slot.id).map(s=>`<option value="${esc(s.date+'|'+s.time)}">${esc(fmtDateBR(s.date)+' • '+s.time+(s.id===slot.id?' — atual':''))}</option>`).join('');f.slot.value=slot.date+'|'+slot.time;$('bookingFeedback').className='scheduler-feedback';$('schedulerBookingModal').classList.add('show')}
+  async function saveBooking(e){e.preventDefault();const f=e.currentTarget;const [date,time]=String(f.slot.value).split('|');try{await rpc('training_admin_update_booking',{p_session_token:token(),p_booking_id:f.id.value,p_name:f.name.value,p_email:f.email.value,p_phone:f.phone.value,p_role:f.role.value,p_store:f.store.value,p_city:f.city.value,p_slot_date:date,p_slot_time:time});$('bookingFeedback').className='scheduler-feedback show success';$('bookingFeedback').textContent='Inscrição salva.';setTimeout(()=>{$('schedulerBookingModal').classList.remove('show');load()},500)}catch(err){$('bookingFeedback').className='scheduler-feedback show error';$('bookingFeedback').textContent=err.message||'Não foi possível salvar.'}}
 
-  function applyDateFilter() {
-    const selected = $('schedulerDayInput')?.value || todayISO();
-    let visible = 0;
-    qsa('#agenda-grid .slot-card').forEach(card => { const same = slotDateFromCard(card) === selected; card.style.display = same ? '' : 'none'; if (same) visible++; });
-    $('agenda-horizon') && ($('agenda-horizon').textContent = 'Turmas de ' + isoToBR(selected));
-    let empty = $('schedulerDateEmpty');
-    if (!empty) { empty = document.createElement('div'); empty.id = 'schedulerDateEmpty'; empty.className = 'scheduler-date-empty'; $('agenda-grid')?.after(empty); }
-    empty.style.display = visible ? 'none' : 'block';
-    empty.textContent = `Nenhuma turma em ${isoToBR(selected)}. Use “+ Nova turma” para criar.`;
-  }
-
-  async function navigateToDate(iso) {
-    if (!iso) return;
-    const target = localDate(iso);
-    if (!target) return;
-    for (let i=0; i<70; i++) {
-      const range = parseWeekRange();
-      if (!range) break;
-      if (target < range.start) $('prev-week')?.click();
-      else if (target > range.end) $('extend-week')?.click();
-      else break;
-      await sleep(220);
-    }
-    await sleep(400); enhanceSlotCards(); applyDateFilter();
-  }
-  async function refreshAndFilter() { $('refresh-agenda')?.click(); await sleep(650); enhanceSlotCards(); applyDateFilter(); }
-  function startObserver() { if (observerStarted) return; const grid = $('agenda-grid'); if (!grid) return; observerStarted = true; new MutationObserver(() => setTimeout(() => { enhanceSlotCards(); applyDateFilter(); }, 80)).observe(grid,{childList:true,subtree:true}); }
-
-  function start() {
-    injectStyles(); injectModal(); injectDateFilter(); injectPlusButton(); enhanceSlotCards(); startObserver(); setTimeout(() => navigateToDate($('schedulerDayInput')?.value || todayISO()), 700);
-    if ((!$('agenda-grid') || !$('schedulerDayInput')) && attempts < 12) { attempts++; setTimeout(start, 500); }
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+  function start(){injectStyles();ensureModals();timers.forEach(clearTimeout);timers=[setTimeout(load,500),setTimeout(load,1300),setTimeout(load,2400)];const r=$('refresh-agenda');if(r&&!r.dataset.schedulerHooked){r.dataset.schedulerHooked='true';r.addEventListener('click',()=>setTimeout(load,400))}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();

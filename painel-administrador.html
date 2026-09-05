@@ -6,584 +6,110 @@
   <title>Painel Administrativo | Agenda de Treinamento</title>
   <style>
     :root {
-      --bg:#ebe7e2;
-      --card:#ffffff;
-      --ink:#121314;
-      --muted:#6e727a;
-      --line:#d9d4cc;
-      --soft:#f6f3ef;
-      --shadow:0 10px 32px rgba(0,0,0,.06);
-      --radius:26px;
-      --danger:#b33a2d;
-      --success:#256947;
-      --premium:#7c5c14;
+      --bg:#ebe7e2; --card:#ffffff; --ink:#121314; --muted:#6e727a; --line:#d9d4cc; --soft:#f6f3ef;
+      --shadow:0 10px 32px rgba(0,0,0,.06); --radius:26px; --danger:#b33a2d; --success:#256947; --premium:#7c5c14;
     }
-
     * { box-sizing:border-box; }
-    body {
-      margin:0;
-      background:var(--bg);
-      color:var(--ink);
-      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    button, input, select { font:inherit; }
-
-    .topbar {
-      background:#fff;
-      border-bottom:1px solid #e7e2db;
-      position:sticky;
-      top:0;
-      z-index:20;
-    }
-    .topbar-inner {
-      max-width:1500px;
-      margin:0 auto;
-      padding:16px 22px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:18px;
-    }
-    .brand {
-      display:flex;
-      align-items:center;
-      gap:18px;
-      min-width:0;
-    }
-    .brand img {
-      width:178px;
-      height:auto;
-      display:block;
-    }
-    .brand-title {
-      padding-left:18px;
-      border-left:2px solid #ddd7cf;
-      font-size:18px;
-      font-weight:850;
-      letter-spacing:.08em;
-      color:#666a72;
-      text-transform:uppercase;
-      white-space:nowrap;
-    }
-    .top-actions {
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-
-    .btn {
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-      padding:11px 16px;
-      border-radius:16px;
-      border:1px solid var(--line);
-      background:#fff;
-      color:var(--ink);
-      font-size:14px;
-      font-weight:850;
-      cursor:pointer;
-      text-decoration:none;
-    }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    button,input,select { font:inherit; }
+    .topbar { background:#fff; border-bottom:1px solid #e7e2db; position:sticky; top:0; z-index:20; }
+    .topbar-inner { max-width:1500px; margin:0 auto; padding:16px 22px; display:flex; align-items:center; justify-content:space-between; gap:18px; }
+    .brand { display:flex; align-items:center; gap:18px; min-width:0; text-decoration:none; color:inherit; }
+    .brand img { width:178px; height:auto; display:block; }
+    .brand-title { padding-left:18px; border-left:2px solid #ddd7cf; font-size:18px; font-weight:850; letter-spacing:.08em; color:#666a72; text-transform:uppercase; white-space:nowrap; }
+    .top-actions { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:11px 16px; border-radius:16px; border:1px solid var(--line); background:#fff; color:var(--ink); font-size:14px; font-weight:850; cursor:pointer; text-decoration:none; }
     .btn.dark { background:#0a0a0b; color:#fff; border-color:#0a0a0b; }
     .btn.danger { color:var(--danger); border-color:#ebcdc8; background:#fff7f6; }
     .btn.premium { background:#fff8dd; border-color:#eadfa8; color:var(--premium); }
     .btn.success { color:var(--success); border-color:#cae7d7; background:#f0fbf4; }
     .btn.small { padding:8px 11px; border-radius:12px; font-size:13px; }
-
-    .page {
-      max-width:1500px;
-      margin:0 auto;
-      padding:24px 22px 34px;
-    }
-    .hero {
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:18px;
-      margin-bottom:18px;
-    }
-    .hero h1 {
-      margin:0 0 6px;
-      font-size:48px;
-      line-height:.96;
-      letter-spacing:-.055em;
-      font-weight:950;
-    }
-    .hero p {
-      margin:0;
-      color:var(--muted);
-      font-size:17px;
-    }
-    .badge {
-      display:inline-flex;
-      padding:9px 13px;
-      border-radius:15px;
-      background:#fff;
-      border:1px solid var(--line);
-      font-size:13px;
-      font-weight:850;
-      color:#565960;
-    }
-
-    .tabs {
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin:16px 0 20px;
-    }
-    .tab {
-      border:1px solid var(--line);
-      background:#fff;
-      padding:12px 18px;
-      border-radius:999px;
-      font-weight:900;
-      cursor:pointer;
-    }
+    .page { max-width:1500px; margin:0 auto; padding:24px 22px 34px; }
+    .hero { display:flex; justify-content:space-between; align-items:flex-start; gap:18px; margin-bottom:18px; }
+    .hero h1 { margin:0 0 6px; font-size:48px; line-height:.96; letter-spacing:-.055em; font-weight:950; }
+    .hero p { margin:0; color:var(--muted); font-size:17px; }
+    .badge { display:inline-flex; padding:9px 13px; border-radius:15px; background:#fff; border:1px solid var(--line); font-size:13px; font-weight:850; color:#565960; }
+    .tabs { display:flex; gap:10px; flex-wrap:wrap; margin:16px 0 20px; }
+    .tab { border:1px solid var(--line); background:#fff; padding:12px 18px; border-radius:999px; font-weight:900; cursor:pointer; }
     .tab.active { background:#0a0a0b; color:#fff; border-color:#0a0a0b; }
-
-    .panel { display:none; }
-    .panel.active { display:block; }
-    .exam-shell {
-      overflow: hidden;
-      padding: 0;
-      min-height: 760px;
-    }
-    .exam-frame {
-      display: block;
-      width: 100%;
-      min-height: 960px;
-      border: 0;
-      background: #f3f5f7;
-    }
-
-    .stats {
-      display:grid;
-      grid-template-columns:repeat(4,minmax(0,1fr));
-      gap:14px;
-      margin-bottom:18px;
-    }
-    .card {
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-    }
+    .panel { display:none; } .panel.active { display:block; }
+    .exam-shell { overflow:hidden; padding:0; min-height:760px; }
+    .exam-frame { display:block; width:100%; min-height:960px; border:0; background:var(--bg); }
+    .stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin-bottom:18px; }
+    .card { background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); }
     .stat-card { padding:20px; }
-    .stat-number {
-      font-size:42px;
-      line-height:1;
-      font-weight:950;
-      margin-bottom:8px;
-      letter-spacing:-.04em;
-    }
-    .stat-label {
-      font-size:16px;
-      color:var(--muted);
-      font-weight:750;
-    }
-
-    .toolbar {
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:14px;
-      flex-wrap:wrap;
-      margin-bottom:16px;
-    }
-    .toolbar-left, .toolbar-right {
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-
-    .notice {
-      padding:14px 16px;
-      border-radius:16px;
-      background:#fff8dd;
-      border:1px solid #eadfa8;
-      color:#7c5c14;
-      font-weight:800;
-      margin-bottom:14px;
-      display:none;
-    }
+    .stat-number { font-size:42px; line-height:1; font-weight:950; margin-bottom:8px; letter-spacing:-.04em; }
+    .stat-label { font-size:16px; color:var(--muted); font-weight:750; }
+    .toolbar { display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:16px; }
+    .toolbar-left,.toolbar-right { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .notice { padding:14px 16px; border-radius:16px; background:#fff8dd; border:1px solid #eadfa8; color:#7c5c14; font-weight:800; margin-bottom:14px; display:none; }
     .notice.show { display:block; }
-    .feedback {
-      display:none;
-      margin-bottom:14px;
-      padding:12px 14px;
-      border-radius:14px;
-      font-size:14px;
-      font-weight:750;
-    }
-    .feedback.show { display:block; }
-    .feedback.success { background:#e7f5ee; color:var(--success); }
-    .feedback.error { background:#f8e8e6; color:var(--danger); }
-
-    .agenda-grid {
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:16px;
-    }
-    .slot-card {
-      padding:18px;
-      border:1px solid #eee8df;
-    }
-    .slot-top {
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:12px;
-      margin-bottom:12px;
-    }
-    .slot-title {
-      font-size:22px;
-      font-weight:950;
-      letter-spacing:-.035em;
-    }
-    .slot-sub {
-      margin-top:4px;
-      color:var(--muted);
-      font-weight:750;
-    }
-    .pill-status {
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-width:100px;
-      padding:7px 10px;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:900;
-    }
-    .pill-status.active { background:#e7f5ee; color:var(--success); }
-    .pill-status.inactive { background:#f8e8e6; color:var(--danger); }
-    .pill-status.premium { background:#fff5cf; color:var(--premium); }
-
-    .slot-metrics {
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:8px;
-      margin:12px 0;
-    }
-    .mini {
-      background:var(--soft);
-      border-radius:14px;
-      padding:10px;
-    }
-    .mini strong { display:block; font-size:20px; }
-    .mini span { color:var(--muted); font-size:12px; font-weight:800; }
-
-    .participant-list {
-      margin-top:12px;
-      border-top:1px solid #eee8df;
-      padding-top:10px;
-    }
-    .participant {
-      padding:10px 0;
-      border-bottom:1px solid #f0ece6;
-      display:grid;
-      grid-template-columns:1fr auto;
-      gap:10px;
-    }
-    .participant:last-child { border-bottom:0; }
-    .participant strong { display:block; }
-    .participant small { color:var(--muted); font-weight:700; }
+    .feedback { display:none; margin-bottom:14px; padding:12px 14px; border-radius:14px; font-size:14px; font-weight:750; }
+    .feedback.show { display:block; } .feedback.success { background:#e7f5ee; color:var(--success); } .feedback.error { background:#f8e8e6; color:var(--danger); }
+    .agenda-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+    .slot-card { padding:18px; border:1px solid #eee8df; }
+    .slot-top { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:12px; }
+    .slot-title { font-size:22px; font-weight:950; letter-spacing:-.035em; }
+    .slot-sub { margin-top:4px; color:var(--muted); font-weight:750; }
+    .pill-status { display:inline-flex; align-items:center; justify-content:center; min-width:100px; padding:7px 10px; border-radius:999px; font-size:12px; font-weight:900; }
+    .pill-status.active { background:#e7f5ee; color:var(--success); } .pill-status.inactive { background:#f8e8e6; color:var(--danger); } .pill-status.premium { background:#fff5cf; color:var(--premium); }
+    .slot-metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:12px 0; }
+    .mini { background:var(--soft); border-radius:14px; padding:10px; }
+    .mini strong { display:block; font-size:20px; } .mini span { color:var(--muted); font-size:12px; font-weight:800; }
+    .participant-list { margin-top:12px; border-top:1px solid #eee8df; padding-top:10px; }
+    .participant { padding:10px 0; border-bottom:1px solid #f0ece6; display:grid; grid-template-columns:1fr auto; gap:10px; }
+    .participant:last-child { border-bottom:0; } .participant strong { display:block; } .participant small { color:var(--muted); font-weight:700; }
     .empty { padding:22px; color:var(--muted); font-size:15px; }
-
-    .user-layout {
-      display:grid;
-      grid-template-columns:minmax(0,1.35fr) 360px;
-      gap:18px;
-      align-items:start;
-    }
-    .users-card, .side-card { padding:22px; }
-    .section-head {
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:16px;
-      margin-bottom:16px;
-    }
-    .section-head h2, .side-card h3 {
-      margin:0;
-      font-size:30px;
-      line-height:1;
-      font-weight:950;
-      letter-spacing:-.04em;
-    }
-    .filters {
-      display:flex;
-      gap:9px;
-      flex-wrap:wrap;
-    }
-    .filters input, .filters select, .field input, .field select {
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:11px 13px;
-      background:#fff;
-      min-height:44px;
-    }
-    .table-wrap {
-      overflow:auto;
-      border:1px solid #ece7e0;
-      border-radius:20px;
-    }
-    table {
-      width:100%;
-      border-collapse:collapse;
-      min-width:850px;
-      background:#fff;
-    }
-    th {
-      text-align:left;
-      padding:14px 12px;
-      background:#f7f4f0;
-      color:#565960;
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:.05em;
-    }
-    td {
-      padding:14px 12px;
-      border-top:1px solid #efebe5;
-      vertical-align:top;
-      font-size:14px;
-    }
-    .user-actions {
-      display:flex;
-      flex-wrap:wrap;
-      gap:7px;
-    }
-    .field {
-      display:flex;
-      flex-direction:column;
-      gap:7px;
-      margin-bottom:11px;
-    }
-    .field label { font-size:13px; font-weight:850; }
-    .field-row {
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-    }
-    .helper {
-      font-size:13px;
-      color:var(--muted);
-      line-height:1.45;
-    }
-    .divider {
-      height:1px;
-      background:#ece7e0;
-      margin:16px 0;
-    }
-
-    .modal {
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.35);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:20px;
-      z-index:50;
-    }
+    .user-layout { display:grid; grid-template-columns:minmax(0,1.35fr) 360px; gap:18px; align-items:start; }
+    .users-card,.side-card { padding:22px; }
+    .section-head { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:16px; }
+    .section-head h2,.side-card h3 { margin:0; font-size:30px; line-height:1; font-weight:950; letter-spacing:-.04em; }
+    .filters { display:flex; gap:9px; flex-wrap:wrap; }
+    .filters input,.filters select,.field input,.field select { border:1px solid var(--line); border-radius:14px; padding:11px 13px; background:#fff; min-height:44px; }
+    .table-wrap { overflow:auto; border:1px solid #ece7e0; border-radius:20px; }
+    table { width:100%; border-collapse:collapse; min-width:850px; background:#fff; }
+    th { text-align:left; padding:14px 12px; background:#f7f4f0; color:#565960; font-size:12px; text-transform:uppercase; letter-spacing:.05em; }
+    td { padding:14px 12px; border-top:1px solid #efebe5; vertical-align:top; font-size:14px; }
+    .user-actions { display:flex; flex-wrap:wrap; gap:7px; }
+    .field { display:flex; flex-direction:column; gap:7px; margin-bottom:11px; } .field label { font-size:13px; font-weight:850; }
+    .field-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; } .helper { font-size:13px; color:var(--muted); line-height:1.45; }
+    .divider { height:1px; background:#ece7e0; margin:16px 0; }
+    .modal { position:fixed; inset:0; background:rgba(0,0,0,.35); display:none; align-items:center; justify-content:center; padding:20px; z-index:50; }
     .modal.show { display:flex; }
-    .modal-card {
-      width:min(100%,560px);
-      background:#fff;
-      border-radius:24px;
-      box-shadow:var(--shadow);
-      padding:22px;
-    }
-    .modal-head {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:14px;
-    }
-    .modal-head h3 {
-      margin:0;
-      font-size:26px;
-      font-weight:950;
-      letter-spacing:-.04em;
-    }
-
-    @media(max-width:1180px){
-      .agenda-grid, .user-layout { grid-template-columns:1fr; }
-      .stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
-    }
-    @media(max-width:760px){
-      .topbar-inner, .hero { flex-direction:column; align-items:flex-start; }
-      .page { padding:18px 14px 24px; }
-      .hero h1 { font-size:38px; }
-      .stats { grid-template-columns:1fr; }
-      .field-row { grid-template-columns:1fr; }
-      .brand img { width:160px; }
-      .brand-title { font-size:14px; padding-left:12px; }
-    }
+    .modal-card { width:min(100%,560px); background:#fff; border-radius:24px; box-shadow:var(--shadow); padding:22px; }
+    .modal-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+    .modal-head h3 { margin:0; font-size:26px; font-weight:950; letter-spacing:-.04em; }
+    @media(max-width:1180px){.agenda-grid,.user-layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:760px){.topbar-inner,.hero{flex-direction:column; align-items:flex-start}.page{padding:18px 14px 24px}.hero h1{font-size:38px}.stats{grid-template-columns:1fr}.field-row{grid-template-columns:1fr}.brand img{width:160px}.brand-title{font-size:14px;padding-left:12px}}
   </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="topbar-inner">
-      <a class="brand" href="index.html" aria-label="Voltar para o início">
-        <img src="assets/logo-jorlan.png" alt="Grupo Jorlan" />
-        <div class="brand-title">Painel administrativo</div>
-      </a>
-      <div class="top-actions">
-        <a class="btn" href="index.html">Início</a>
-        <button class="btn danger" id="logout-button" type="button">Sair</button>
-      </div>
-    </div>
-  </header>
-
+  <header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html" aria-label="Voltar para o início"><img src="assets/logo-jorlan.png" alt="Grupo Jorlan" /><div class="brand-title">Painel administrativo</div></a><div class="top-actions"><a class="btn" href="index.html">Início</a><button class="btn danger" id="logout-button" type="button">Sair</button></div></div></header>
   <main class="page">
-    <section class="hero">
-      <div>
-        <h1>Painel administrativo</h1>
-        <p>Gestão de turmas, inscritos, exportação e usuários administrativos.</p>
-      </div>
-      <div class="badge" id="current-admin-badge">Carregando administrador...</div>
-    </section>
-
-    <nav class="tabs">
-      <button class="tab active" data-tab="agenda" type="button">Agenda de turmas</button>
-      <button class="tab" data-tab="provas" type="button">Controle de provas</button>
-      <button class="tab" data-tab="usuarios" type="button">Usuários</button>
-    </nav>
+    <section class="hero"><div><h1>Painel administrativo</h1><p>Gestão de turmas, inscritos, provas e usuários administrativos.</p></div><div class="badge" id="current-admin-badge">Carregando administrador...</div></section>
+    <nav class="tabs"><button class="tab active" data-tab="agenda" type="button">Agenda de turmas</button><button class="tab" data-tab="provas" type="button">Controle de provas</button><button class="tab" data-tab="usuarios" type="button">Usuários</button></nav>
 
     <section id="panel-agenda" class="panel active">
-      <section class="stats">
-        <article class="card stat-card"><div class="stat-number" id="agenda-open">0</div><div class="stat-label">turmas abertas</div></article>
-        <article class="card stat-card"><div class="stat-number" id="agenda-blocked">0</div><div class="stat-label">turmas bloqueadas</div></article>
-        <article class="card stat-card"><div class="stat-number" id="agenda-booked">0</div><div class="stat-label">inscritos</div></article>
-        <article class="card stat-card"><div class="stat-number" id="agenda-available">0</div><div class="stat-label">vagas disponíveis</div></article>
-      </section>
-
-      <div class="toolbar">
-        <div class="toolbar-left">
-          <button class="btn dark" id="refresh-agenda" type="button">Atualizar</button>
-          <button class="btn" id="prev-week" type="button">Voltar -1 semana</button>
-          <button class="btn" id="extend-week" type="button">Mostrar +1 semana</button>
-          <button class="btn" id="export-csv" type="button">Exportar CSV completo</button>
-        </div>
-        <div class="toolbar-right"><span class="badge" id="agenda-horizon">Agenda</span></div>
-      </div>
-
-      <div id="agenda-feedback" class="feedback"></div>
-      <div id="agenda-warning" class="notice"></div>
-      <section id="agenda-grid" class="agenda-grid">
-        <div class="card empty">Carregando agenda...</div>
-      </section>
+      <section class="stats"><article class="card stat-card"><div class="stat-number" id="agenda-open">0</div><div class="stat-label">turmas abertas</div></article><article class="card stat-card"><div class="stat-number" id="agenda-blocked">0</div><div class="stat-label">turmas bloqueadas</div></article><article class="card stat-card"><div class="stat-number" id="agenda-booked">0</div><div class="stat-label">inscritos</div></article><article class="card stat-card"><div class="stat-number" id="agenda-available">0</div><div class="stat-label">vagas disponíveis</div></article></section>
+      <div class="toolbar"><div class="toolbar-left"><button class="btn dark" id="refresh-agenda" type="button">Atualizar</button><button class="btn" id="prev-week" type="button">Voltar -1 semana</button><button class="btn" id="extend-week" type="button">Mostrar +1 semana</button><button class="btn" id="export-csv" type="button">Exportar CSV completo</button></div><div class="toolbar-right"><span class="badge" id="agenda-horizon">Agenda</span></div></div>
+      <div id="agenda-feedback" class="feedback"></div><div id="agenda-warning" class="notice show">Agenda manual: crie novas turmas pelo botão “+ Nova turma”.</div><section id="agenda-grid" class="agenda-grid"><div class="card empty">Carregando agenda...</div></section>
     </section>
 
-    <section id="panel-provas" class="panel">
-      <div class="toolbar">
-        <div class="toolbar-left">
-          <strong>Controle de provas</strong>
-          <span class="helper">Crie avaliações, gere acessos e acompanhe os resultados sem sair do administrativo.</span>
-        </div>
-        <div class="toolbar-right">
-          <a class="btn" href="prova.html" target="_blank" rel="noopener">Abrir em tela cheia</a>
-        </div>
-      </div>
-      <article class="card exam-shell">
-        <iframe class="exam-frame" src="prova.html?admin=1" title="Controle de provas"></iframe>
-      </article>
-    </section>
+    <section id="panel-provas" class="panel"><div class="toolbar"><div class="toolbar-left"><strong>Controle de provas</strong><span class="helper">Crie avaliações, gere acessos e acompanhe resultados no mesmo padrão visual do painel.</span></div><div class="toolbar-right"><a class="btn" href="prova.html" target="_blank" rel="noopener">Abrir em tela cheia</a></div></div><article class="card exam-shell"><iframe class="exam-frame" src="prova.html?admin=1" title="Controle de provas"></iframe></article></section>
 
     <section id="panel-usuarios" class="panel">
-      <section class="stats">
-        <article class="card stat-card"><div class="stat-number" id="stat-total">0</div><div class="stat-label">Usuários totais</div></article>
-        <article class="card stat-card"><div class="stat-number" id="stat-active">0</div><div class="stat-label">Usuários ativos</div></article>
-        <article class="card stat-card"><div class="stat-number" id="stat-premium">0</div><div class="stat-label">Usuários premium</div></article>
-        <article class="card stat-card"><div class="stat-number" id="stat-inactive">0</div><div class="stat-label">Usuários desativados</div></article>
-      </section>
-
-      <section class="user-layout">
-        <article class="card users-card">
-          <div class="section-head">
-            <h2>Usuários administrativos</h2>
-            <div class="filters">
-              <input id="user-search" type="search" placeholder="Buscar usuário" />
-              <select id="user-filter-status">
-                <option value="all">Todos</option>
-                <option value="active">Ativos</option>
-                <option value="inactive">Desativados</option>
-              </select>
-              <select id="user-filter-tier">
-                <option value="all">Todos os planos</option>
-                <option value="standard">Padrão</option>
-                <option value="premium">Premium</option>
-              </select>
-            </div>
-          </div>
-          <div id="table-feedback" class="feedback"></div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr><th>Usuário</th><th>Contato</th><th>Perfil</th><th>Status</th><th>Plano</th><th>Ações</th></tr>
-              </thead>
-              <tbody id="users-table-body">
-                <tr><td colspan="6" class="empty">Carregando usuários...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </article>
-
-        <aside class="card side-card">
-          <h3>Novo administrador</h3>
-          <div class="helper">Cadastre um novo acesso administrativo.</div>
-          <div class="divider"></div>
-          <div id="create-feedback" class="feedback"></div>
-          <form id="create-user-form">
-            <div class="field"><label for="create-username">Usuário</label><input id="create-username" type="text" required /></div>
-            <div class="field"><label for="create-display-name">Nome</label><input id="create-display-name" type="text" required /></div>
-            <div class="field"><label for="create-email">E-mail</label><input id="create-email" type="email" /></div>
-            <div class="field-row">
-              <div class="field"><label for="create-role">Perfil</label><select id="create-role"><option>Administrador</option><option>Supervisor</option><option>Gerente</option></select></div>
-              <div class="field"><label for="create-tier">Plano</label><select id="create-tier"><option value="standard">Padrão</option><option value="premium">Premium</option></select></div>
-            </div>
-            <div class="field"><label for="create-password">Senha inicial</label><input id="create-password" type="password" required /></div>
-            <button class="btn dark" style="width:100%;margin-top:8px" type="submit">Criar usuário</button>
-          </form>
-        </aside>
-      </section>
+      <section class="stats"><article class="card stat-card"><div class="stat-number" id="stat-total">0</div><div class="stat-label">Usuários totais</div></article><article class="card stat-card"><div class="stat-number" id="stat-active">0</div><div class="stat-label">Usuários ativos</div></article><article class="card stat-card"><div class="stat-number" id="stat-premium">0</div><div class="stat-label">Usuários premium</div></article><article class="card stat-card"><div class="stat-number" id="stat-inactive">0</div><div class="stat-label">Usuários desativados</div></article></section>
+      <section class="user-layout"><article class="card users-card"><div class="section-head"><h2>Usuários administrativos</h2><div class="filters"><input id="user-search" type="search" placeholder="Buscar usuário" /><select id="user-filter-status"><option value="all">Todos</option><option value="active">Ativos</option><option value="inactive">Desativados</option></select><select id="user-filter-tier"><option value="all">Todos os planos</option><option value="standard">Padrão</option><option value="premium">Premium</option></select></div></div><div id="table-feedback" class="feedback"></div><div class="table-wrap"><table><thead><tr><th>Usuário</th><th>Contato</th><th>Perfil</th><th>Status</th><th>Plano</th><th>Ações</th></tr></thead><tbody id="users-table-body"><tr><td colspan="6" class="empty">Carregando usuários...</td></tr></tbody></table></div></article>
+      <aside class="card side-card"><h3>Novo administrador</h3><div class="helper">Cadastre um novo acesso administrativo.</div><div class="divider"></div><div id="create-feedback" class="feedback"></div><form id="create-user-form"><div class="field"><label for="create-username">Usuário</label><input id="create-username" type="text" required /></div><div class="field"><label for="create-display-name">Nome</label><input id="create-display-name" type="text" required /></div><div class="field"><label for="create-email">E-mail</label><input id="create-email" type="email" /></div><div class="field-row"><div class="field"><label for="create-role">Perfil</label><select id="create-role"><option>Administrador</option><option>Supervisor</option><option>Gerente</option></select></div><div class="field"><label for="create-tier">Plano</label><select id="create-tier"><option value="standard">Padrão</option><option value="premium">Premium</option></select></div></div><div class="field"><label for="create-password">Senha inicial</label><input id="create-password" type="password" required /></div><button class="btn dark" style="width:100%;margin-top:8px" type="submit">Criar usuário</button></form></aside></section>
     </section>
   </main>
 
-  <div class="modal" id="edit-user-modal">
-    <div class="modal-card">
-      <div class="modal-head">
-        <h3>Editar usuário</h3>
-        <button class="btn small" id="close-edit-modal" type="button">Fechar</button>
-      </div>
-      <div id="edit-feedback" class="feedback"></div>
-      <form id="edit-user-form">
-        <input type="hidden" id="edit-user-id" />
-        <div class="field"><label for="edit-display-name">Nome</label><input id="edit-display-name" type="text" required /></div>
-        <div class="field"><label for="edit-email">E-mail</label><input id="edit-email" type="email" /></div>
-        <div class="field-row">
-          <div class="field"><label for="edit-role">Perfil</label><select id="edit-role"><option>Administrador</option><option>Supervisor</option><option>Gerente</option></select></div>
-          <div class="field"><label for="edit-tier">Plano</label><select id="edit-tier"><option value="standard">Padrão</option><option value="premium">Premium</option></select></div>
-        </div>
-        <div class="field"><label for="edit-active">Status</label><select id="edit-active"><option value="true">Ativo</option><option value="false">Desativado</option></select></div>
-        <button class="btn dark" style="width:100%;margin-top:8px" type="submit">Salvar alterações</button>
-      </form>
-    </div>
-  </div>
+  <div class="modal" id="edit-user-modal"><div class="modal-card"><div class="modal-head"><h3>Editar usuário</h3><button class="btn small" id="close-edit-modal" type="button">Fechar</button></div><div id="edit-feedback" class="feedback"></div><form id="edit-user-form"><input type="hidden" id="edit-user-id" /><div class="field"><label for="edit-display-name">Nome</label><input id="edit-display-name" type="text" required /></div><div class="field"><label for="edit-email">E-mail</label><input id="edit-email" type="email" /></div><div class="field-row"><div class="field"><label for="edit-role">Perfil</label><select id="edit-role"><option>Administrador</option><option>Supervisor</option><option>Gerente</option></select></div><div class="field"><label for="edit-tier">Plano</label><select id="edit-tier"><option value="standard">Padrão</option><option value="premium">Premium</option></select></div></div><div class="field"><label for="edit-active">Status</label><select id="edit-active"><option value="true">Ativo</option><option value="false">Desativado</option></select></div><button class="btn dark" style="width:100%;margin-top:8px" type="submit">Salvar alterações</button></form></div></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/config.js"></script>
   <script src="assets/js/painel-unificado.js"></script>
   <script src="assets/js/admin-bookings.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="assets/js/config.js"></script><script src="assets/js/painel-unificado.js"></script><script src="assets/js/admin-bookings.js"></script><script src="assets/js/admin-scheduler.js"></script>
-<script src="assets/js/admin-scheduler.js"></script>
-</body>
-</html>
+  <script src="assets/js/admin-scheduler.js"></script>
 </body>
 </html>

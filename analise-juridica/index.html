@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Informações para Análise Jurídica - Seminovos | Grupo Jorlan</title>
+<style>
+:root{
+  --red:#b5121b;--red-dark:#8f0d14;--ink:#171717;--muted:#666;--line:#d9d9d9;
+  --soft:#f5f5f5;--white:#fff;--ok:#eef7f0;--warn:#fff7e8;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#efefef;color:var(--ink)}
+.top{background:#111;color:#fff;border-bottom:4px solid var(--red);padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{width:44px;height:44px;border-radius:8px;background:var(--red);display:grid;place-items:center;font-weight:800;font-size:22px;letter-spacing:-1px}
+.brand h1{font-size:17px;margin:0;line-height:1.15}
+.brand p{font-size:12px;margin:3px 0 0;color:#ccc}
+.top-badge{font-size:12px;color:#ddd;text-align:right}
+.toolbar{max-width:1080px;margin:18px auto 0;padding:0 16px;display:flex;justify-content:flex-end;gap:10px}
+button{border:0;border-radius:8px;padding:11px 16px;font-weight:700;cursor:pointer;font-size:14px}
+.btn-clear{background:#ddd;color:#222}
+.btn-pdf{background:var(--red);color:#fff}
+.btn-pdf:hover{background:var(--red-dark)}
+.app{max-width:1080px;margin:12px auto 36px;padding:0 16px}
+.card{background:#fff;border-radius:12px;box-shadow:0 3px 14px rgba(0,0,0,.08);overflow:hidden}
+.card-head{padding:24px 26px 18px;border-bottom:1px solid var(--line)}
+.card-head h2{margin:0;font-size:24px;letter-spacing:-.3px}
+.card-head p{margin:7px 0 0;color:var(--muted);font-size:14px}
+.notice{margin:18px 26px 0;padding:13px 14px;background:var(--warn);border-left:4px solid #cc8a00;border-radius:7px;font-size:12px;line-height:1.45}
+.section{padding:22px 26px 4px}
+.section-title{font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--red);border-bottom:2px solid var(--red);padding-bottom:8px;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.full{grid-column:1/-1}
+label{display:block;font-size:12px;font-weight:750;margin:0 0 6px;color:#333}
+.req:after{content:" *";color:var(--red)}
+input,select,textarea{width:100%;border:1px solid #cfcfcf;border-radius:8px;background:#fff;padding:11px 12px;font:inherit;font-size:14px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(181,18,27,.08)}
+textarea{min-height:92px;resize:vertical}
+.hint{font-size:11px;color:#777;margin-top:5px}
+.conditional{display:none}
+.card-foot{padding:20px 26px 26px;color:#666;font-size:11px;line-height:1.5}
+.print-sheet{display:none}
+@media(max-width:720px){
+  .top{align-items:flex-start}.top-badge{display:none}.grid{grid-template-columns:1fr}
+  .card-head,.section{padding-left:18px;padding-right:18px}.notice{margin-left:18px;margin-right:18px}
+  .toolbar{justify-content:stretch}.toolbar button{flex:1}
+}
+@media print{
+  @page{size:A4;margin:10mm}
+  body{background:#fff}
+  .top,.toolbar,.app{display:none!important}
+  .print-sheet{display:block!important;color:#111;font-family:Arial,sans-serif}
+  .ps-header{display:flex;align-items:center;gap:12px;border-bottom:3px solid #b5121b;padding-bottom:10px;margin-bottom:14px}
+  .ps-logo{width:48px;height:48px;background:#b5121b;color:#fff;border-radius:6px;display:grid;place-items:center;font-weight:800;font-size:21px}
+  .ps-title h1{font-size:18px;margin:0}.ps-title p{font-size:10px;margin:4px 0 0;color:#555}
+  .ps-section{margin-top:12px}
+  .ps-section-title{font-size:10px;font-weight:800;text-transform:uppercase;color:#b5121b;border-bottom:1.5px solid #b5121b;padding-bottom:4px;margin-bottom:7px}
+  .ps-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+  .ps-grid.three{grid-template-columns:repeat(3,1fr)}
+  .ps-item{border:1px solid #d5d5d5;border-radius:5px;padding:6px 7px;min-height:41px}
+  .ps-full{grid-column:1/-1}
+  .ps-label{display:block;font-size:8px;text-transform:uppercase;color:#666;font-weight:700;margin-bottom:3px}
+  .ps-value{font-size:10px;font-weight:600;white-space:pre-wrap;word-break:break-word}
+  .ps-note{font-size:9px;font-weight:400;line-height:1.35}
+  .ps-footer{margin-top:14px;padding-top:7px;border-top:1px solid #bbb;display:flex;justify-content:space-between;color:#666;font-size:8px}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <div class="brand-mark">J</div>
+    <div><h1>Grupo Jorlan</h1><p>Seminovos • Informações para Análise Jurídica</p></div>
+  </div>
+  <div class="top-badge">Formulário aberto • Sem armazenamento de dados</div>
+</header>
+
+<div class="toolbar">
+  <button class="btn-clear" type="button" onclick="limpar()">Limpar</button>
+  <button class="btn-pdf" type="button" onclick="gerarPDF()">Gerar / Salvar PDF</button>
+</div>
+
+<main class="app">
+  <section class="card">
+    <div class="card-head">
+      <h2>Informações para Análise Jurídica</h2>
+      <p>Preencha os dados da negociação para anexação e suporte à análise jurídica.</p>
+    </div>
+    <div class="notice"><strong>LGPD:</strong> este formulário não grava nem envia os dados preenchidos. As informações permanecem somente no navegador durante o uso. CPF/CNPJ e demais dados pessoais devem ser tratados e compartilhados apenas pelos canais corporativos autorizados.</div>
+
+    <div class="section">
+      <div class="section-title">Identificação da negociação</div>
+      <div class="grid">
+        <div><label for="data" class="req">Data</label><input id="data" type="date"></div>
+        <div><label for="proposta" class="req">Número da proposta</label><input id="proposta" inputmode="numeric" placeholder="Ex.: 987654"></div>
+        <div><label for="lecom">Número do LECOM</label><input id="lecom" placeholder="Se já existir"></div>
+        <div><label for="loja" class="req">Loja</label><input id="loja" placeholder="Nome da concessionária / unidade"></div>
+        <div class="full"><label for="responsavel" class="req">Responsável pelo preenchimento</label><input id="responsavel" placeholder="Nome do colaborador responsável pelas informações"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Veículo recebido na troca</div>
+      <div class="grid">
+        <div><label for="placaTroca" class="req">Placa do veículo recebido</label><input id="placaTroca" maxlength="8" placeholder="Ex.: ABC1D23"></div>
+        <div><label for="valorTroca" class="req">Valor do veículo recebido na troca</label><input id="valorTroca" inputmode="decimal" placeholder="R$ 0,00"></div>
+        <div><label for="propTroca" class="req">Proprietário do veículo recebido</label><input id="propTroca" placeholder="Nome completo / Razão Social"></div>
+        <div><label for="docPropTroca" class="req">CPF / CNPJ do proprietário</label><input id="docPropTroca" placeholder="CPF ou CNPJ"></div>
+        <div><label for="finTroca" class="req">Veículo recebido possui financiamento?</label>
+          <select id="finTroca"><option value="">Selecione...</option><option>Não</option><option>Sim</option></select>
+        </div>
+        <div><label for="obsFinTroca">Informação complementar sobre financiamento</label><input id="obsFinTroca" placeholder="Opcional"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Veículo vendido / faturado</div>
+      <div class="grid">
+        <div><label for="placaVenda">Placa do veículo vendido</label><input id="placaVenda" maxlength="8" placeholder="Ex.: ABC1D23"></div>
+        <div><label for="valorVenda" class="req">Valor do veículo vendido / faturado</label><input id="valorVenda" inputmode="decimal" placeholder="R$ 0,00"></div>
+        <div><label for="faturadoPara" class="req">Nome / Razão Social para faturamento</label><input id="faturadoPara" placeholder="Pessoa para quem será emitida a nota fiscal"></div>
+        <div><label for="docFaturado" class="req">CPF / CNPJ para faturamento</label><input id="docFaturado" placeholder="CPF ou CNPJ"></div>
+        <div><label for="finVenda" class="req">Veículo vendido será financiado?</label>
+          <select id="finVenda"><option value="">Selecione...</option><option>Não</option><option>Sim</option></select>
+        </div>
+        <div><label for="obsFinVenda">Informação complementar sobre financiamento</label><input id="obsFinVenda" placeholder="Opcional"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Relação entre proprietário e faturamento</div>
+      <div class="grid">
+        <div class="full"><label for="mesmaPessoa" class="req">O proprietário do veículo recebido é a mesma pessoa para quem o veículo vendido será faturado?</label>
+          <select id="mesmaPessoa" onchange="toggleRelacao()"><option value="">Selecione...</option><option>Sim</option><option>Não</option></select>
+        </div>
+        <div id="relacaoWrap" class="full conditional">
+          <label for="relacao" class="req">Relação entre as partes / justificativa da divergência</label>
+          <textarea id="relacao" placeholder="Informe objetivamente a relação entre o proprietário do veículo recebido e a pessoa para quem o veículo será faturado, bem como a justificativa da divergência."></textarea>
+        </div>
+        <div class="full">
+          <label for="observacoes">Observações complementares</label>
+          <textarea id="observacoes" placeholder="Registre aqui qualquer informação relevante para a análise jurídica."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-foot">
+      Documento de apoio à análise jurídica. O preenchimento deste formulário não representa aprovação da negociação nem substitui o parecer do Jurídico.
+    </div>
+  </section>
+</main>
+
+<section class="print-sheet" id="printSheet">
+  <div class="ps-header">
+    <div class="ps-logo">J</div>
+    <div class="ps-title">
+      <h1>INFORMAÇÕES PARA ANÁLISE JURÍDICA</h1>
+      <p>Grupo Jorlan • Seminovos • Documento para anexação ao processo</p>
+    </div>
+  </div>
+
+  <div class="ps-section">
+    <div class="ps-section-title">Identificação da negociação</div>
+    <div class="ps-grid three">
+      <div class="ps-item"><span class="ps-label">Data</span><div class="ps-value" data-out="data"></div></div>
+      <div class="ps-item"><span class="ps-label">Proposta</span><div class="ps-value" data-out="proposta"></div></div>
+      <div class="ps-item"><span class="ps-label">LECOM</span><div class="ps-value" data-out="lecom"></div></div>
+      <div class="ps-item ps-full"><span class="ps-label">Loja</span><div class="ps-value" data-out="loja"></div></div>
+      <div class="ps-item ps-full"><span class="ps-label">Responsável pelo preenchimento</span><div class="ps-value" data-out="responsavel"></div></div>
+    </div>
+  </div>
+
+  <div class="ps-section">
+    <div class="ps-section-title">Veículo recebido na troca</div>
+    <div class="ps-grid">
+      <div class="ps-item"><span class="ps-label">Placa</span><div class="ps-value" data-out="placaTroca"></div></div>
+      <div class="ps-item"><span class="ps-label">Valor recebido na troca</span><div class="ps-value" data-out="valorTroca"></div></div>
+      <div class="ps-item"><span class="ps-label">Proprietário</span><div class="ps-value" data-out="propTroca"></div></div>
+      <div class="ps-item"><span class="ps-label">CPF / CNPJ do proprietário</span><div class="ps-value" data-out="docPropTroca"></div></div>
+      <div class="ps-item"><span class="ps-label">Possui financiamento?</span><div class="ps-value" data-out="finTroca"></div></div>
+      <div class="ps-item"><span class="ps-label">Complemento financiamento</span><div class="ps-value" data-out="obsFinTroca"></div></div>
+    </div>
+  </div>
+
+  <div class="ps-section">
+    <div class="ps-section-title">Veículo vendido / faturado</div>
+    <div class="ps-grid">
+      <div class="ps-item"><span class="ps-label">Placa</span><div class="ps-value" data-out="placaVenda"></div></div>
+      <div class="ps-item"><span class="ps-label">Valor vendido / faturado</span><div class="ps-value" data-out="valorVenda"></div></div>
+      <div class="ps-item"><span class="ps-label">Faturado para</span><div class="ps-value" data-out="faturadoPara"></div></div>
+      <div class="ps-item"><span class="ps-label">CPF / CNPJ para faturamento</span><div class="ps-value" data-out="docFaturado"></div></div>
+      <div class="ps-item"><span class="ps-label">Será financiado?</span><div class="ps-value" data-out="finVenda"></div></div>
+      <div class="ps-item"><span class="ps-label">Complemento financiamento</span><div class="ps-value" data-out="obsFinVenda"></div></div>
+    </div>
+  </div>
+
+  <div class="ps-section">
+    <div class="ps-section-title">Relação entre proprietário e faturamento</div>
+    <div class="ps-grid">
+      <div class="ps-item ps-full"><span class="ps-label">Mesma pessoa?</span><div class="ps-value" data-out="mesmaPessoa"></div></div>
+      <div class="ps-item ps-full"><span class="ps-label">Relação entre as partes / justificativa</span><div class="ps-value ps-note" data-out="relacao"></div></div>
+      <div class="ps-item ps-full"><span class="ps-label">Observações complementares</span><div class="ps-value ps-note" data-out="observacoes"></div></div>
+    </div>
+  </div>
+
+  <div class="ps-footer">
+    <span>Documento de apoio à análise jurídica — não representa aprovação.</span>
+    <span id="footerRef">Proposta: —</span>
+  </div>
+</section>
+
+<script>
+const ids=["data","proposta","lecom","loja","responsavel","placaTroca","valorTroca","propTroca","docPropTroca","finTroca","obsFinTroca","placaVenda","valorVenda","faturadoPara","docFaturado","finVenda","obsFinVenda","mesmaPessoa","relacao","observacoes"];
+
+function el(id){return document.getElementById(id)}
+function val(id){const e=el(id);return e?(e.value||"").trim():""}
+
+function hoje(){
+  const d=new Date();
+  const off=d.getTimezoneOffset();
+  const local=new Date(d.getTime()-off*60000).toISOString().slice(0,10);
+  el("data").value=local;
+}
+function toggleRelacao(){
+  const show=val("mesmaPessoa")==="Não";
+  el("relacaoWrap").style.display=show?"block":"none";
+  if(!show) el("relacao").value="";
+}
+function limpar(){
+  ids.forEach(id=>{const e=el(id);if(e)e.value=""});
+  hoje();toggleRelacao();
+}
+function fmtData(s){
+  if(!s)return "—";
+  const p=s.split("-");
+  return p.length===3? p[2]+"/"+p[1]+"/"+p[0] : s;
+}
+function onlyDigits(s){return (s||"").replace(/\D/g,"")}
+function moedaInput(e){
+  const dig=onlyDigits(e.value);
+  if(!dig){e.value="";return}
+  e.value=(Number(dig)/100).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+}
+["valorTroca","valorVenda"].forEach(id=>el(id).addEventListener("input",ev=>moedaInput(ev.target)));
+["placaTroca","placaVenda"].forEach(id=>el(id).addEventListener("input",ev=>ev.target.value=ev.target.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,7)));
+
+function validar(){
+  const obrig=["data","proposta","loja","responsavel","placaTroca","valorTroca","propTroca","docPropTroca","finTroca","valorVenda","faturadoPara","docFaturado","finVenda","mesmaPessoa"];
+  const faltas=obrig.filter(id=>!val(id));
+  if(val("mesmaPessoa")==="Não"&&!val("relacao"))faltas.push("relacao");
+  if(faltas.length){
+    const primeiro=el(faltas[0]); primeiro.focus();
+    alert("Preencha todos os campos obrigatórios antes de gerar o PDF.");
+    return false;
+  }
+  return true;
+}
+function popularImpressao(){
+  document.querySelectorAll("[data-out]").forEach(node=>{
+    const id=node.getAttribute("data-out");
+    let v=val(id);
+    if(id==="data")v=fmtData(v);
+    node.textContent=v||"—";
+  });
+  el("footerRef").textContent="Proposta: "+(val("proposta")||"—");
+}
+function gerarPDF(){
+  if(!validar())return;
+  popularImpressao();
+  window.print();
+}
+hoje();
+toggleRelacao();
+</script>
+</body>
+</html>

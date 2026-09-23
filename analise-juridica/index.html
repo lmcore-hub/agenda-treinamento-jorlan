@@ -93,8 +93,6 @@ textarea{min-height:92px;resize:vertical}
       <div class="section-title">Identificação da negociação</div>
       <div class="grid">
         <div><label for="data" class="req">Data</label><input id="data" type="date"></div>
-        <div><label for="proposta" class="req">Número da proposta</label><input id="proposta" inputmode="numeric" placeholder="Ex.: 987654"></div>
-        <div><label for="lecom">Número do LECOM</label><input id="lecom" placeholder="Se já existir"></div>
         <div><label for="loja" class="req">Loja</label><input id="loja" placeholder="Nome da concessionária / unidade"></div>
         <div class="full"><label for="responsavel" class="req">Responsável pelo preenchimento</label><input id="responsavel" placeholder="Nome do colaborador responsável pelas informações"></div>
       </div>
@@ -105,8 +103,6 @@ textarea{min-height:92px;resize:vertical}
       <div class="grid">
         <div><label for="placaTroca" class="req">Placa do veículo recebido</label><input id="placaTroca" maxlength="8" placeholder="Ex.: ABC1D23"></div>
         <div><label for="valorTroca" class="req">Valor do veículo recebido na troca</label><input id="valorTroca" inputmode="decimal" placeholder="R$ 0,00"></div>
-        <div><label for="propTroca" class="req">Proprietário do veículo recebido</label><input id="propTroca" placeholder="Nome completo / Razão Social"></div>
-        <div><label for="docPropTroca" class="req">CPF / CNPJ do proprietário</label><input id="docPropTroca" placeholder="CPF ou CNPJ"></div>
         <div><label for="finTroca" class="req">Veículo recebido possui financiamento?</label>
           <select id="finTroca"><option value="">Selecione...</option><option>Não</option><option>Sim</option></select>
         </div>
@@ -132,11 +128,19 @@ textarea{min-height:92px;resize:vertical}
       <div class="section-title">Relação entre proprietário e faturamento</div>
       <div class="grid">
         <div class="full"><label for="mesmaPessoa" class="req">O proprietário do veículo recebido é a mesma pessoa para quem o veículo vendido será faturado?</label>
-          <select id="mesmaPessoa" onchange="toggleRelacao()"><option value="">Selecione...</option><option>Sim</option><option>Não</option></select>
+          <select id="mesmaPessoa" onchange="toggleProprietario()"><option value="">Selecione...</option><option>Sim</option><option>Não</option></select>
         </div>
-        <div id="relacaoWrap" class="full conditional">
-          <label for="relacao" class="req">Relação entre as partes / justificativa da divergência</label>
-          <textarea id="relacao" placeholder="Informe objetivamente a relação entre o proprietário do veículo recebido e a pessoa para quem o veículo será faturado, bem como a justificativa da divergência."></textarea>
+        <div id="proprietarioDivergenteWrap" class="full conditional">
+          <div class="grid">
+            <div>
+              <label for="nomeProprietarioDivergente" class="req">Nome do proprietário</label>
+              <input id="nomeProprietarioDivergente" type="text" placeholder="Nome completo do proprietário do veículo recebido">
+            </div>
+            <div>
+              <label for="cpfProprietarioDivergente" class="req">CPF do proprietário</label>
+              <input id="cpfProprietarioDivergente" type="text" placeholder="CPF do proprietário">
+            </div>
+          </div>
         </div>
         <div class="full">
           <label for="observacoes">Observações complementares</label>
@@ -162,10 +166,8 @@ textarea{min-height:92px;resize:vertical}
 
   <div class="ps-section">
     <div class="ps-section-title">Identificação da negociação</div>
-    <div class="ps-grid three">
+    <div class="ps-grid">
       <div class="ps-item"><span class="ps-label">Data</span><div class="ps-value" data-out="data"></div></div>
-      <div class="ps-item"><span class="ps-label">Proposta</span><div class="ps-value" data-out="proposta"></div></div>
-      <div class="ps-item"><span class="ps-label">LECOM</span><div class="ps-value" data-out="lecom"></div></div>
       <div class="ps-item ps-full"><span class="ps-label">Loja</span><div class="ps-value" data-out="loja"></div></div>
       <div class="ps-item ps-full"><span class="ps-label">Responsável pelo preenchimento</span><div class="ps-value" data-out="responsavel"></div></div>
     </div>
@@ -176,8 +178,6 @@ textarea{min-height:92px;resize:vertical}
     <div class="ps-grid">
       <div class="ps-item"><span class="ps-label">Placa</span><div class="ps-value" data-out="placaTroca"></div></div>
       <div class="ps-item"><span class="ps-label">Valor recebido na troca</span><div class="ps-value" data-out="valorTroca"></div></div>
-      <div class="ps-item"><span class="ps-label">Proprietário</span><div class="ps-value" data-out="propTroca"></div></div>
-      <div class="ps-item"><span class="ps-label">CPF / CNPJ do proprietário</span><div class="ps-value" data-out="docPropTroca"></div></div>
       <div class="ps-item"><span class="ps-label">Possui financiamento?</span><div class="ps-value" data-out="finTroca"></div></div>
       <div class="ps-item"><span class="ps-label">Complemento financiamento</span><div class="ps-value" data-out="obsFinTroca"></div></div>
     </div>
@@ -199,19 +199,20 @@ textarea{min-height:92px;resize:vertical}
     <div class="ps-section-title">Relação entre proprietário e faturamento</div>
     <div class="ps-grid">
       <div class="ps-item ps-full"><span class="ps-label">Mesma pessoa?</span><div class="ps-value" data-out="mesmaPessoa"></div></div>
-      <div class="ps-item ps-full"><span class="ps-label">Relação entre as partes / justificativa</span><div class="ps-value ps-note" data-out="relacao"></div></div>
+      <div id="psNomePropWrap" class="ps-item"><span class="ps-label">Nome do proprietário</span><div class="ps-value" data-out="nomeProprietarioDivergente"></div></div>
+      <div id="psCpfPropWrap" class="ps-item"><span class="ps-label">CPF do proprietário</span><div class="ps-value" data-out="cpfProprietarioDivergente"></div></div>
       <div class="ps-item ps-full"><span class="ps-label">Observações complementares</span><div class="ps-value ps-note" data-out="observacoes"></div></div>
     </div>
   </div>
 
   <div class="ps-footer">
     <span>Documento de apoio à análise jurídica — não representa aprovação.</span>
-    <span id="footerRef">Proposta: —</span>
+    <span>Seminovos • Grupo Jorlan</span>
   </div>
 </section>
 
 <script>
-const ids=["data","proposta","lecom","loja","responsavel","placaTroca","valorTroca","propTroca","docPropTroca","finTroca","obsFinTroca","placaVenda","valorVenda","faturadoPara","docFaturado","finVenda","obsFinVenda","mesmaPessoa","relacao","observacoes"];
+const ids=["data","loja","responsavel","placaTroca","valorTroca","finTroca","obsFinTroca","placaVenda","valorVenda","faturadoPara","docFaturado","finVenda","obsFinVenda","mesmaPessoa","nomeProprietarioDivergente","cpfProprietarioDivergente","observacoes"];
 
 function el(id){return document.getElementById(id)}
 function val(id){const e=el(id);return e?(e.value||"").trim():""}
@@ -222,14 +223,17 @@ function hoje(){
   const local=new Date(d.getTime()-off*60000).toISOString().slice(0,10);
   el("data").value=local;
 }
-function toggleRelacao(){
+function toggleProprietario(){
   const show=val("mesmaPessoa")==="Não";
-  el("relacaoWrap").style.display=show?"block":"none";
-  if(!show) el("relacao").value="";
+  el("proprietarioDivergenteWrap").style.display=show?"block":"none";
+  if(!show){
+    el("nomeProprietarioDivergente").value="";
+    el("cpfProprietarioDivergente").value="";
+  }
 }
 function limpar(){
   ids.forEach(id=>{const e=el(id);if(e)e.value=""});
-  hoje();toggleRelacao();
+  hoje();toggleProprietario();
 }
 function fmtData(s){
   if(!s)return "—";
@@ -246,9 +250,12 @@ function moedaInput(e){
 ["placaTroca","placaVenda"].forEach(id=>el(id).addEventListener("input",ev=>ev.target.value=ev.target.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,7)));
 
 function validar(){
-  const obrig=["data","proposta","loja","responsavel","placaTroca","valorTroca","propTroca","docPropTroca","finTroca","valorVenda","faturadoPara","docFaturado","finVenda","mesmaPessoa"];
+  const obrig=["data","loja","responsavel","placaTroca","valorTroca","finTroca","valorVenda","faturadoPara","docFaturado","finVenda","mesmaPessoa"];
   const faltas=obrig.filter(id=>!val(id));
-  if(val("mesmaPessoa")==="Não"&&!val("relacao"))faltas.push("relacao");
+  if(val("mesmaPessoa")==="Não"){
+    if(!val("nomeProprietarioDivergente"))faltas.push("nomeProprietarioDivergente");
+    if(!val("cpfProprietarioDivergente"))faltas.push("cpfProprietarioDivergente");
+  }
   if(faltas.length){
     const primeiro=el(faltas[0]); primeiro.focus();
     alert("Preencha todos os campos obrigatórios antes de gerar o PDF.");
@@ -263,7 +270,9 @@ function popularImpressao(){
     if(id==="data")v=fmtData(v);
     node.textContent=v||"—";
   });
-  el("footerRef").textContent="Proposta: "+(val("proposta")||"—");
+  const showProp=val("mesmaPessoa")==="Não";
+  el("psNomePropWrap").style.display=showProp?"block":"none";
+  el("psCpfPropWrap").style.display=showProp?"block":"none";
 }
 function gerarPDF(){
   if(!validar())return;
@@ -271,7 +280,7 @@ function gerarPDF(){
   window.print();
 }
 hoje();
-toggleRelacao();
+toggleProprietario();
 </script>
 </body>
 </html>

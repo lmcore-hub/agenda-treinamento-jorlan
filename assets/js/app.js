@@ -225,7 +225,8 @@
           p_phone: String(formData.get("phone") || "").trim(),
           p_role: String(formData.get("role") || "").trim(),
           p_store: String(formData.get("store") || "").trim(),
-          p_city: String(formData.get("city") || "").trim()
+          p_city: String(formData.get("city") || "").trim(),
+          p_manager_role: String(formData.get("manager_role") || "").trim()
         });
         const response = Array.isArray(result) ? result[0] : result;
         if (response && response.success) {

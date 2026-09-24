@@ -67,7 +67,31 @@ async function toggleSlot(slot){if(!slot)return;try{if(slot.blocked)await rpc('t
 async function deleteSlot(slot){if(!slot)return;if(!confirm(`Excluir a turma ${slot.courseName} de ${fmtDateBR(slot.date)} às ${slot.time}?\n\nSe houver inscritos ativos, o sistema vai bloquear a exclusão para preservar o histórico.`))return;try{await rpc('training_admin_delete_slot',{p_session_token:token(),p_slot_id:slot.id});state.expanded.delete(slot.id);await load();render();showFeedback('success','Turma excluída.')}catch(e){showFeedback('error',e.message||'Não foi possível excluir a turma.')}}
 async function markAttendance(bid,status){try{await rpc('training_admin_mark_attendance',{p_session_token:token(),p_booking_id:bid,p_attendance_status:status});await load();render();showFeedback('success','Presença atualizada.')}catch(e){showFeedback('error',e.message)}}
 async function cancelBooking(bid){if(!confirm('Cancelar este inscrito? O registro fica preservado no histórico.'))return;try{await rpc('training_admin_cancel_booking',{p_session_token:token(),p_booking_id:bid});await load();render();showFeedback('success','Inscrição cancelada.')}catch(e){showFeedback('error',e.message)}}
-function openEditBooking(key){showFeedback('error','Para editar dados do inscrito, use o botão Editar da lista antiga ou me solicite para ativar o editor nesta nova lista.')}
+function openEditBooking(key){
+  const parts=String(key||'').split('|'),slot=findSlot(parts[0]),b=findBooking(parts[0],parts[1]);
+  if(!slot||!b)return showFeedback('error','Inscrito não localizado.');
+  document.getElementById('opBookingEditModal')?.remove();
+  const modal=document.createElement('div');
+  modal.className='op-modal show';modal.id='opBookingEditModal';
+  modal.innerHTML=`<div class="op-modal-card"><div class="op-modal-head"><div><h3>Editar inscrito</h3><p style="margin:5px 0 0;color:#6e727a;font-size:13px">${esc(slot.courseName)} • ${fmtDateBR(slot.date)} às ${esc(slot.time)}</p></div><button class="op-btn" id="opCloseBookingEdit" type="button">Fechar</button></div><form id="opBookingEditForm"><div class="op-grid"><div class="op-field"><label>Nome</label><input id="opEditName" value="${esc(bName(b))}" required></div><div class="op-field"><label>Cargo</label><input id="opEditRole" value="${esc(bRole(b))}"></div><div class="op-field"><label>E-mail</label><input id="opEditEmail" type="email" value="${esc(bEmail(b))}" required></div><div class="op-field"><label>Telefone</label><input id="opEditPhone" type="tel" value="${esc(bPhone(b))}" required></div><div class="op-field"><label>Loja</label><input id="opEditStore" value="${esc(bStore(b))}" required></div><div class="op-field"><label>Cidade</label><input id="opEditCity" value="${esc(bCity(b))}" required></div></div><div class="op-actions" style="margin-top:16px;justify-content:flex-end"><button class="op-btn" id="opCancelBookingEdit" type="button">Cancelar</button><button class="op-btn dark" type="submit">Salvar alterações</button></div></form></div>`;
+  document.body.appendChild(modal);
+  const close=()=>modal.remove();
+  $('opCloseBookingEdit').onclick=close;$('opCancelBookingEdit').onclick=close;
+  $('opBookingEditForm').onsubmit=async ev=>{
+    ev.preventDefault();
+    const btn=ev.currentTarget.querySelector('button[type="submit"]');btn.disabled=true;btn.textContent='Salvando...';
+    try{
+      await rpc('training_admin_update_booking',{
+        p_session_token:token(),p_booking_id:b.id,
+        p_name:$('opEditName').value.trim(),p_email:$('opEditEmail').value.trim(),
+        p_phone:$('opEditPhone').value.trim(),p_role:$('opEditRole').value.trim(),
+        p_store:$('opEditStore').value.trim(),p_city:$('opEditCity').value.trim(),
+        p_slot_date:null,p_slot_time:null
+      });
+      close();await load();state.expanded.add(slot.id);render();showFeedback('success','Dados do inscrito atualizados.');
+    }catch(e){alert(e.message);btn.disabled=false;btn.textContent='Salvar alterações'}
+  };
+}
 function whatsappUrl(phone,msg){return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`}
 function showWhatsAppQueue(title,items){items=(items||[]).filter(x=>x&&x.url);if(!items.length)return showFeedback('error','Nenhum WhatsApp válido para envio.');let idx=0;let opened=0;document.getElementById('opWhatsQueueModal')?.remove();const modal=document.createElement('div');modal.className='op-modal show';modal.id='opWhatsQueueModal';document.body.appendChild(modal);function draw(){const item=items[idx];modal.innerHTML=`<div class="op-modal-card"><div class="op-modal-head"><div><h3>${esc(title)}</h3><p class="op-queue-counter">${idx+1} de ${items.length} • ${opened} aberto(s)</p></div><button class="op-btn" id="opCloseQueue" type="button">Fechar</button></div><div class="op-queue-item"><b>${esc(item.name||'Participante')}</b><br><span style="color:#6e727a;font-size:12px">${esc(item.phoneLabel||'')}</span></div><div class="op-actions"><button class="op-btn dark" id="opOpenCurrentWhats" type="button">Abrir WhatsApp deste</button><button class="op-btn" id="opCopyCurrentWhats" type="button">Copiar mensagem</button><button class="op-btn" id="opSkipCurrentWhats" type="button">Pular</button></div><div class="op-queue-msg">${esc(item.msg||'')}</div></div>`;$('opCloseQueue').onclick=()=>modal.remove();$('opOpenCurrentWhats').onclick=()=>{window.open(item.url,'_blank','noopener');opened++;idx++;if(idx>=items.length){modal.innerHTML=`<div class="op-modal-card"><div class="op-modal-head"><div><h3>${esc(title)}</h3><p style="margin:5px 0 0;color:#6e727a;font-size:13px">Fila concluída. WhatsApps abertos: ${opened}.</p></div><button class="op-btn" id="opCloseQueueDone" type="button">Fechar</button></div></div>`;$('opCloseQueueDone').onclick=()=>modal.remove();showFeedback('success',`Fila concluída. WhatsApps abertos: ${opened}.`);return}draw()};$('opCopyCurrentWhats').onclick=()=>navigator.clipboard?.writeText(item.msg||'').then(()=>showFeedback('success','Mensagem copiada.')).catch(()=>alert(item.msg||''));$('opSkipCurrentWhats').onclick=()=>{idx++;if(idx>=items.length){modal.remove();showFeedback('success',`Fila finalizada. WhatsApps abertos: ${opened}.`);return}draw()}}
 draw();showFeedback('success',`Fila preparada com ${items.length} WhatsApp(s). Abra um por vez pelo botão.`)}

@@ -150,6 +150,23 @@ textarea{min-height:92px;resize:vertical}
             <option value="seminovo">Seminovo</option>
           </select>
         </div>
+        <div class="full">
+          <label for="tipoComprador" class="req">Tipo de comprador</label>
+          <select id="tipoComprador" onchange="toggleTipoComprador()">
+            <option value="">Selecione...</option>
+            <option value="CPF">Pessoa Física (CPF)</option>
+            <option value="CNPJ">Pessoa Jurídica (CNPJ)</option>
+          </select>
+        </div>
+        <div>
+          <label id="labelNomeComprador" for="nomeComprador" class="req">Nome / Razão Social</label>
+          <input id="nomeComprador" placeholder="Selecione o tipo de comprador">
+        </div>
+        <div>
+          <label id="labelDocComprador" for="docComprador" class="req">CPF / CNPJ</label>
+          <input id="docComprador" inputmode="numeric" placeholder="Selecione CPF ou CNPJ">
+        </div>
+
         <div id="modeloVendaWrap" class="conditional full">
           <label for="modeloVenda" class="req">Modelo</label>
           <input id="modeloVenda" placeholder="Informe o modelo do veículo zero quilômetro">
@@ -185,8 +202,22 @@ textarea{min-height:92px;resize:vertical}
 
         <div id="proprietarioDivergenteWrap" class="full conditional">
           <div class="grid">
-            <div><label for="nomeProprietarioDivergente" class="req">Nome do proprietário</label><input id="nomeProprietarioDivergente" placeholder="Nome completo do proprietário"></div>
-            <div><label for="cpfProprietarioDivergente" class="req">CPF do proprietário</label><input id="cpfProprietarioDivergente" placeholder="CPF do proprietário"></div>
+            <div class="full">
+              <label for="tipoProprietario" class="req">Tipo de proprietário</label>
+              <select id="tipoProprietario" onchange="toggleTipoProprietario()">
+                <option value="">Selecione...</option>
+                <option value="CPF">Pessoa Física (CPF)</option>
+                <option value="CNPJ">Pessoa Jurídica (CNPJ)</option>
+              </select>
+            </div>
+            <div>
+              <label id="labelNomeProprietario" for="nomeProprietarioDivergente" class="req">Nome / Razão Social</label>
+              <input id="nomeProprietarioDivergente" placeholder="Selecione o tipo de proprietário">
+            </div>
+            <div>
+              <label id="labelDocProprietario" for="docProprietarioDivergente" class="req">CPF / CNPJ do proprietário</label>
+              <input id="docProprietarioDivergente" inputmode="numeric" placeholder="Selecione CPF ou CNPJ">
+            </div>
             <div class="full"><label for="parentesco" class="req">Grau de parentesco / vínculo</label>
               <select id="parentesco">
                 <option value="">Selecione...</option>
@@ -231,7 +262,10 @@ textarea{min-height:92px;resize:vertical}
   <div class="ps-section">
     <div class="ps-section-title">Veículo vendido</div>
     <div class="ps-grid">
-      <div class="ps-item"><span class="ps-label">Tipo</span><div class="ps-value" id="psTipoVenda"></div></div>
+      <div class="ps-item"><span class="ps-label">Tipo do veículo</span><div class="ps-value" id="psTipoVenda"></div></div>
+      <div class="ps-item"><span class="ps-label">Tipo de comprador</span><div class="ps-value" data-out="tipoComprador"></div></div>
+      <div class="ps-item"><span id="psLabelNomeComprador" class="ps-label">Nome / Razão Social</span><div class="ps-value" data-out="nomeComprador"></div></div>
+      <div class="ps-item"><span id="psLabelDocComprador" class="ps-label">CPF / CNPJ</span><div class="ps-value" data-out="docComprador"></div></div>
       <div id="psModeloVendaWrap" class="ps-item"><span class="ps-label">Modelo</span><div class="ps-value" data-out="modeloVenda"></div></div>
       <div id="psPlacaVendaWrap" class="ps-item"><span class="ps-label">Placa</span><div class="ps-value" data-out="placaVenda"></div></div>
       <div class="ps-item"><span class="ps-label">Valor da venda</span><div class="ps-value" data-out="valorVenda"></div></div>
@@ -247,8 +281,9 @@ textarea{min-height:92px;resize:vertical}
       <div class="ps-item"><span class="ps-label">Possui financiamento?</span><div class="ps-value" data-out="finTroca"></div></div>
       <div class="ps-item"><span class="ps-label">Valor pago no veículo recebido</span><div class="ps-value" data-out="valorTroca"></div></div>
       <div class="ps-item ps-full"><span class="ps-label">Complemento do financiamento</span><div class="ps-value" data-out="obsFinTroca"></div></div>
-      <div id="psNomePropWrap" class="ps-item"><span class="ps-label">Nome do proprietário</span><div class="ps-value" data-out="nomeProprietarioDivergente"></div></div>
-      <div id="psCpfPropWrap" class="ps-item"><span class="ps-label">CPF do proprietário</span><div class="ps-value" data-out="cpfProprietarioDivergente"></div></div>
+      <div id="psTipoPropWrap" class="ps-item"><span class="ps-label">Tipo de proprietário</span><div class="ps-value" data-out="tipoProprietario"></div></div>
+      <div id="psNomePropWrap" class="ps-item"><span id="psLabelNomeProp" class="ps-label">Nome / Razão Social</span><div class="ps-value" data-out="nomeProprietarioDivergente"></div></div>
+      <div id="psDocPropWrap" class="ps-item"><span id="psLabelDocProp" class="ps-label">CPF / CNPJ do proprietário</span><div class="ps-value" data-out="docProprietarioDivergente"></div></div>
       <div id="psParentescoWrap" class="ps-item ps-full"><span class="ps-label">Grau de parentesco / vínculo</span><div class="ps-value" data-out="parentesco"></div></div>
       <div id="psObsWrap" class="ps-item ps-full"><span class="ps-label">Observação complementar</span><div class="ps-value ps-note" data-out="observacoes"></div></div>
     </div>
@@ -261,20 +296,63 @@ textarea{min-height:92px;resize:vertical}
 </section>
 
 <script>
-const ids=["data","loja","responsavel","tipoVenda","modeloVenda","placaVenda","valorVenda","finVenda","obsFinVenda","mesmaPessoa","finTroca","valorTroca","obsFinTroca","nomeProprietarioDivergente","cpfProprietarioDivergente","parentesco","observacoes"];
+const ids=["data","loja","responsavel","tipoVenda","tipoComprador","nomeComprador","docComprador","modeloVenda","placaVenda","valorVenda","finVenda","obsFinVenda","mesmaPessoa","finTroca","valorTroca","obsFinTroca","tipoProprietario","nomeProprietarioDivergente","docProprietarioDivergente","parentesco","observacoes"];
 function el(id){return document.getElementById(id)}
 function val(id){const e=el(id);return e?(e.value||"").trim():""}
 const lojasData=[{"regional":"Belo Horizonte","diretor":"Marcelo Jardim","sigla":"JH","marca":"Chevrolet","dms":"122","cnpj":"01.542.240/0016-67","nome":"JORLAN CHEVROLET BARÃO","gerente":"Antônio Oliveira Filho"},{"regional":"Belo Horizonte","diretor":"Marcelo Jardim","sigla":"OH","marca":"Chevrolet","dms":"124","cnpj":"01.542.240/0015-86","nome":"JORLAN CHEVROLET CATALÃO","gerente":"Gustavo de Assis Correia"},{"regional":"Belo Horizonte","diretor":"Marcelo Jardim","sigla":"JS","marca":"Chevrolet","dms":"128","cnpj":"01.542.240/0014-03","nome":"JORLAN CHEVROLET EXPRESSA","gerente":"Gustavo de Assis Correia"},{"regional":"Belo Horizonte","diretor":"João Filipe","sigla":"RF","marca":"Renault","dms":"85","cnpj":"11.953.116/0005-95","nome":"JORLAN FRANCE BARÃO","gerente":"Antônio Oliveira Filho"},{"regional":"Belo Horizonte","diretor":"João Filipe","sigla":"CI","marca":"Citroën","dms":"102","cnpj":"47.232.777/0002-26","nome":"JORLAN FRANCE CITROEN","gerente":"Wollney Bezerra Caldeira"},{"regional":"Belo Horizonte","diretor":"João Filipe","sigla":"PF","marca":"Renault","dms":"83","cnpj":"11.953.116/0003-23","nome":"JORLAN FRANCE PAMPULHA","gerente":"Felipe Martins Paiva"},{"regional":"Belo Horizonte","diretor":"João Filipe","sigla":"PE","marca":"Peugeot","dms":"101","cnpj":"47.232.777/0001-45","nome":"JORLAN FRANCE PEUGEOT","gerente":"Wollney Bezerra Caldeira"},{"regional":"Belo Horizonte","diretor":"João Filipe","sigla":"MF","marca":"Renault","dms":"81","cnpj":"11.953.116/0001-61","nome":"JORLAN FRANCE SAVASSI","gerente":"Helbert Satler Hott"},{"regional":"Belo Horizonte","diretor":"João Filipe","sigla":"G3","marca":"GAC","dms":"134","cnpj":"58.267.919/0003-98","nome":"JORLAN GAC BARÃO","gerente":"Webert Costa de Ornelas"},{"regional":"Belo Horizonte","diretor":"João Filipe","sigla":"G2","marca":"GAC","dms":"132","cnpj":"58.267.919/0002-07","nome":"JORLAN GAC PAMPULHA","gerente":"Wollney Bezerra Caldeira"},{"regional":"Belo Horizonte","diretor":"João Filipe","sigla":"Y2","marca":"Geely","dms":"152","cnpj":"60.345.363/0002-71","nome":"JORLAN GEELY BARÃO","gerente":"Webert Costa de Ornelas"},{"regional":"Belo Horizonte","diretor":"João Filipe","sigla":"K1","marca":"KIA","dms":"141","cnpj":"58.274.539/0001-19","nome":"JORLAN KIA PAMPULHA","gerente":"Felipe Martins Paiva"},{"regional":"Brasília","diretor":"Ericson","sigla":"JL","marca":"Chevrolet","dms":"23","cnpj":"01.542.240/0004-23","nome":"JORLAN CHEVROLET ASA NORTE","gerente":"Magno Leite Rodrigues"},{"regional":"Brasília","diretor":"Ericson","sigla":"JB","marca":"Chevrolet","dms":"11","cnpj":"01.542.240/0003-42","nome":"JORLAN CHEVROLET SIA","gerente":"Cristiano Machado Ramos"},{"regional":"Brasília","diretor":"Ericson","sigla":"JV","marca":"Chevrolet","dms":"27","cnpj":"01.542.240/0013-14","nome":"JORLAN CHEVROLET VALPARAISO","gerente":"Francisco José Ribeiro Silva"},{"regional":"Brasília","diretor":"Ericson","sigla":"CF","marca":"Renault","dms":"202","cnpj":"28.975.442/0002-53","nome":"JORLAN FRANCE COLORADO","gerente":"Julio Cezar Lopes de Oliveira"},{"regional":"Brasília","diretor":"Ericson","sigla":"GF","marca":"Renault","dms":"203","cnpj":"28.975.442/0003-34","nome":"JORLAN FRANCE GAMA","gerente":"Francismar Menezes da Silva"},{"regional":"Brasília","diretor":"Ericson","sigla":"BF","marca":"Renault","dms":"201","cnpj":"28.975.442/0001-72","nome":"JORLAN FRANCE TAGUATINGA","gerente":"Jose Elias de Moura Junior"},{"regional":"Brasília","diretor":"Ericson","sigla":"G1","marca":"GAC","dms":"133","cnpj":"58.267.919/0004-79","nome":"JORLAN GAC AEROPORTO","gerente":"Maicon de Paulo Borel"},{"regional":"Brasília","diretor":"Ericson","sigla":"G4","marca":"GAC","dms":"131","cnpj":"58.267.919/0001-26","nome":"JORLAN GAC SIA","gerente":"Maicon de Paulo Borel"},{"regional":"Brasília","diretor":"Marcela","sigla":"Y1","marca":"Geely","dms":"151","cnpj":"60.345.363/0001-90","nome":"JORLAN GEELY AEROPORTO","gerente":"Maicon de Paulo Borel"},{"regional":"Brasília","diretor":"Marcela","sigla":"Y3","marca":"Geely","dms":"153","cnpj":"60.345.363/0003-52","nome":"JORLAN GEELY SIA","gerente":"Maicon de Paulo Borel"},{"regional":"Brasília","diretor":"João Batista","sigla":"GA","marca":"GWM","dms":"112","cnpj":"48.990.364/0002-73","nome":"JORLAN GWM AEROPORTO","gerente":"Maicon de Paulo Borel"},{"regional":"Brasília","diretor":"João Batista","sigla":"GN","marca":"GWM","dms":"114","cnpj":"48.990.364/0003-54","nome":"JORLAN GWM ASA NORTE","gerente":"Claudio Hugo Mikkelsen"},{"regional":"Brasília","diretor":"João Batista","sigla":"GS","marca":"GWM","dms":"111","cnpj":"48.990.364/0001-92","nome":"JORLAN GWM SIA","gerente":"Claudio Hugo Mikkelsen"},{"regional":"Brasília","diretor":"Marcela","sigla":"HW","marca":"Harley-Davidson","dms":"91","cnpj":"13.685.709/0001-10","nome":"JORLAN HARLEY","gerente":""},{"regional":"Brasília","diretor":"Ericson","sigla":"OG","marca":"Chevrolet","dms":"32","cnpj":"00.549.675/0004-37","nome":"JORLAN ORCA GAMA","gerente":"Francismar Menezes da Silva"},{"regional":"Brasília","diretor":"Ericson","sigla":"OR","marca":"Chevrolet","dms":"31","cnpj":"00.549.675/0001-94","nome":"JORLAN ORCA TAGUATINGA","gerente":"Jose Elias de Moura Junior"},{"regional":"Brasília","diretor":"João Batista","sigla":"HP","marca":"Honda","dms":"41","cnpj":"38.035.010/0001-35","nome":"JORLAN PLAZA ASA NORTE","gerente":"Mario de Oliveira Morais Junior"},{"regional":"Brasília","diretor":"João Batista","sigla":"HT","marca":"Honda","dms":"42","cnpj":"38.035.010/0002-16","nome":"JORLAN PLAZA ASA TAGUATINGA","gerente":"Jose Elias de Moura Junior"},{"regional":"Goiânia","diretor":"Marcelo Jardim","sigla":"JO","marca":"Chevrolet","dms":"9","cnpj":"01.542.240/0008-57","nome":"JORLAN CHEVROLET LAGO DAS ROSAS","gerente":"Luciano Crispim de Sena"},{"regional":"Goiânia","diretor":"Marcelo Jardim","sigla":"JP","marca":"Chevrolet","dms":"15","cnpj":"01.542.240/0012-33","nome":"JORLAN CHEVROLET PIO XII","gerente":"Érika Teixeira Silva"}];
 
 function hoje(){
-  const d=new Date();
-  const off=d.getTimezoneOffset();
+  const d=new Date(), off=d.getTimezoneOffset();
   el("data").value=new Date(d.getTime()-off*60000).toISOString().slice(0,10);
+}
+function onlyDigits(s){return (s||"").replace(/\D/g,"")}
+function formatCPF(v){
+  let d=onlyDigits(v).slice(0,11);
+  d=d.replace(/(\d{3})(\d)/,"$1.$2");
+  d=d.replace(/(\d{3})(\d)/,"$1.$2");
+  d=d.replace(/(\d{3})(\d{1,2})$/,"$1-$2");
+  return d;
+}
+function formatCNPJ(v){
+  let d=onlyDigits(v).slice(0,14);
+  d=d.replace(/(\d{2})(\d)/,"$1.$2");
+  d=d.replace(/(\d{3})(\d)/,"$1.$2");
+  d=d.replace(/(\d{3})(\d)/,"$1/$2");
+  d=d.replace(/(\d{4})(\d{1,2})$/,"$1-$2");
+  return d;
+}
+function configurarPessoa(tipo, labelNomeId, labelDocId, nomeId, docId, contexto){
+  const labelNome=el(labelNomeId), labelDoc=el(labelDocId), nome=el(nomeId), doc=el(docId);
+  if(tipo==="CPF"){
+    labelNome.textContent=contexto==="proprietario"?"Nome do proprietário":"Nome do comprador";
+    labelDoc.textContent=contexto==="proprietario"?"CPF do proprietário":"CPF do comprador";
+    nome.placeholder="Nome completo";
+    doc.placeholder="000.000.000-00";
+    doc.maxLength=14;
+  }else if(tipo==="CNPJ"){
+    labelNome.textContent="Razão Social";
+    labelDoc.textContent=contexto==="proprietario"?"CNPJ do proprietário":"CNPJ do comprador";
+    nome.placeholder="Razão Social";
+    doc.placeholder="00.000.000/0000-00";
+    doc.maxLength=18;
+  }else{
+    labelNome.textContent="Nome / Razão Social";
+    labelDoc.textContent=contexto==="proprietario"?"CPF / CNPJ do proprietário":"CPF / CNPJ";
+    nome.placeholder="Selecione o tipo";
+    doc.placeholder="Selecione CPF ou CNPJ";
+    doc.removeAttribute("maxlength");
+  }
+  doc.value="";
+}
+function toggleTipoComprador(){
+  configurarPessoa(val("tipoComprador"),"labelNomeComprador","labelDocComprador","nomeComprador","docComprador","comprador");
+}
+function toggleTipoProprietario(){
+  configurarPessoa(val("tipoProprietario"),"labelNomeProprietario","labelDocProprietario","nomeProprietarioDivergente","docProprietarioDivergente","proprietario");
 }
 function toggleTipoVenda(){
   const tipo=val("tipoVenda");
-  const zero=tipo==="0km";
-  const semi=tipo==="seminovo";
+  const zero=tipo==="0km", semi=tipo==="seminovo";
   el("modeloVendaWrap").style.display=zero?"block":"none";
   el("placaVendaWrap").style.display=semi?"block":"none";
   if(!zero) el("modeloVenda").value="";
@@ -292,22 +370,23 @@ function toggleTroca(){
     el("obsFinTroca").value="";
   }
   if(!diferente){
+    el("tipoProprietario").value="";
     el("nomeProprietarioDivergente").value="";
-    el("cpfProprietarioDivergente").value="";
+    el("docProprietarioDivergente").value="";
     el("parentesco").value="";
     el("observacoes").value="";
+    toggleTipoProprietario();
   }
 }
 function limpar(){
   ids.forEach(id=>{const e=el(id);if(e)e.value=""});
-  hoje();toggleTipoVenda();toggleTroca();
+  hoje();toggleTipoVenda();toggleTipoComprador();toggleTroca();toggleTipoProprietario();
 }
 function fmtData(s){
   if(!s)return "—";
   const p=s.split("-");
   return p.length===3?p[2]+"/"+p[1]+"/"+p[0]:s;
 }
-function onlyDigits(s){return (s||"").replace(/\D/g,"")}
 function moedaInput(e){
   const dig=onlyDigits(e.value);
   if(!dig){e.value="";return}
@@ -315,14 +394,20 @@ function moedaInput(e){
 }
 ["valorTroca","valorVenda"].forEach(id=>el(id).addEventListener("input",ev=>moedaInput(ev.target)));
 el("placaVenda").addEventListener("input",ev=>ev.target.value=ev.target.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,7));
+el("docComprador").addEventListener("input",ev=>{
+  ev.target.value=val("tipoComprador")==="CPF"?formatCPF(ev.target.value):val("tipoComprador")==="CNPJ"?formatCNPJ(ev.target.value):onlyDigits(ev.target.value);
+});
+el("docProprietarioDivergente").addEventListener("input",ev=>{
+  ev.target.value=val("tipoProprietario")==="CPF"?formatCPF(ev.target.value):val("tipoProprietario")==="CNPJ"?formatCNPJ(ev.target.value):onlyDigits(ev.target.value);
+});
 
 function validar(){
-  const obrig=["data","loja","responsavel","tipoVenda","valorVenda","finVenda","mesmaPessoa","finTroca","valorTroca"];
+  const obrig=["data","loja","responsavel","tipoVenda","tipoComprador","nomeComprador","docComprador","valorVenda","finVenda","mesmaPessoa","finTroca","valorTroca"];
   const faltas=obrig.filter(id=>!val(id));
   if(val("tipoVenda")==="0km"&&!val("modeloVenda"))faltas.push("modeloVenda");
   if(val("tipoVenda")==="seminovo"&&!val("placaVenda"))faltas.push("placaVenda");
   if(val("mesmaPessoa")==="Não"){
-    ["nomeProprietarioDivergente","cpfProprietarioDivergente","parentesco"].forEach(id=>{if(!val(id))faltas.push(id)});
+    ["tipoProprietario","nomeProprietarioDivergente","docProprietarioDivergente","parentesco"].forEach(id=>{if(!val(id))faltas.push(id)});
   }
   if(faltas.length){
     el(faltas[0]).focus();
@@ -336,6 +421,8 @@ function popularImpressao(){
     const id=node.getAttribute("data-out");
     let v=val(id);
     if(id==="data")v=fmtData(v);
+    if(id==="tipoComprador") v=v==="CPF"?"Pessoa Física (CPF)":v==="CNPJ"?"Pessoa Jurídica (CNPJ)":v;
+    if(id==="tipoProprietario") v=v==="CPF"?"Pessoa Física (CPF)":v==="CNPJ"?"Pessoa Jurídica (CNPJ)":v;
     node.textContent=v||"—";
   });
   const loja=lojasData.find(i=>i.cnpj===val("loja"));
@@ -343,8 +430,14 @@ function popularImpressao(){
   el("psTipoVenda").textContent=val("tipoVenda")==="0km"?"Zero quilômetro":val("tipoVenda")==="seminovo"?"Seminovo":"—";
   el("psModeloVendaWrap").style.display=val("tipoVenda")==="0km"?"block":"none";
   el("psPlacaVendaWrap").style.display=val("tipoVenda")==="seminovo"?"block":"none";
+  el("psLabelNomeComprador").textContent=val("tipoComprador")==="CNPJ"?"Razão Social":"Nome do comprador";
+  el("psLabelDocComprador").textContent=val("tipoComprador")==="CNPJ"?"CNPJ do comprador":"CPF do comprador";
   const diferente=val("mesmaPessoa")==="Não";
-  ["psNomePropWrap","psCpfPropWrap","psParentescoWrap","psObsWrap"].forEach(id=>el(id).style.display=diferente?"block":"none");
+  ["psTipoPropWrap","psNomePropWrap","psDocPropWrap","psParentescoWrap","psObsWrap"].forEach(id=>el(id).style.display=diferente?"block":"none");
+  if(diferente){
+    el("psLabelNomeProp").textContent=val("tipoProprietario")==="CNPJ"?"Razão Social":"Nome do proprietário";
+    el("psLabelDocProp").textContent=val("tipoProprietario")==="CNPJ"?"CNPJ do proprietário":"CPF do proprietário";
+  }
 }
 function gerarPDF(){
   if(!validar())return;
@@ -353,7 +446,9 @@ function gerarPDF(){
 }
 hoje();
 toggleTipoVenda();
+toggleTipoComprador();
 toggleTroca();
+toggleTipoProprietario();
 </script>
 </body>
 </html>

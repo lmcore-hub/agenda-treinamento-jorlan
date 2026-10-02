@@ -530,3 +530,59 @@ table.data-table { width: 100%; border-collapse: collapse; min-width: 640px; }
   .signup-copy { padding: 0; }
   .signup-media { min-height: 320px; }
 }
+
+
+/* Ajuste visual dos cards públicos com ação "Ver inscritos" */
+.public-slot-card {
+  grid-template-columns: 1fr;
+  padding: 0;
+  overflow: hidden;
+}
+.public-slot-card .calendar-card-main {
+  display: grid;
+  grid-template-columns: 98px minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  padding: 18px 18px 12px;
+  text-decoration: none;
+  min-width: 0;
+}
+.public-slot-card .calendar-info {
+  min-width: 0;
+}
+.public-slot-card .calendar-info h3 {
+  overflow-wrap: normal;
+  word-break: normal;
+}
+.public-slot-card .calendar-status {
+  align-self: center;
+  justify-self: end;
+}
+.public-slot-card .calendar-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 18px 18px;
+}
+.public-slot-card .calendar-card-actions .btn {
+  min-width: 128px;
+}
+.public-slot-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(17,17,17,.35);
+  box-shadow: var(--shadow);
+}
+@media (max-width: 760px) {
+  .public-slot-card .calendar-card-main {
+    grid-template-columns: 82px minmax(0, 1fr);
+    gap: 14px;
+  }
+  .public-slot-card .calendar-status {
+    grid-column: 2;
+    justify-self: start;
+  }
+  .public-slot-card .calendar-card-actions {
+    justify-content: flex-start;
+    padding-left: 114px;
+  }
+}

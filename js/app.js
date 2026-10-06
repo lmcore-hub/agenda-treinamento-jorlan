@@ -32,6 +32,7 @@
   async function rpc(name, params) {
     const client = getClient();
     if (!client) throw new Error("Supabase não configurado.");
+    if (window.JorlanAdminSession) return window.JorlanAdminSession.rpc(client, name, params);
     const { data, error } = await client.rpc(name, params || {});
     if (error) throw new Error(error.message || "Erro na comunicação com o banco.");
     return data;
@@ -221,7 +222,7 @@
           alertBox("bookingAlert", "success", "<strong>Inscrição confirmada.</strong><br>O participante foi incluído na turma selecionada.");
           form.reset();
         } else {
-          let msg = response && response.message ? response.message : "Não foi possível confirmar a inscrição.";
+          let msg = escapeHtml(response && response.message ? response.message : "Não foi possível confirmar a inscrição.");
           if (response && response.nearest_date && response.nearest_time) msg += `<br>Próxima turma com vaga: <strong>${escapeHtml(formatFullDate(response.nearest_date))} às ${escapeHtml(response.nearest_time)}</strong>.`;
           alertBox("bookingAlert", "warning", msg);
         }
@@ -576,11 +577,12 @@
   }
 
   async function logoutAdmin() {
-    const token = getAdminToken();
-    try { if (token && isConfigReady()) await rpc("training_admin_logout", { p_session_token: token }); } catch (_) {}
+    if (!window.JorlanAdminSession) {
+      alertBox("adminAlert", "danger", "Não foi possível confirmar a saída. Recarregue o painel e tente novamente.");
+      return;
+    }
     adminState = null;
-    clearAdminToken();
-    window.location.replace("index.html#administrador");
+    await window.JorlanAdminSession.logout(getClient());
   }
 
   function exportAdminCsv() {

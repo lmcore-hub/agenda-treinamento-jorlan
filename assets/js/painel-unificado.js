@@ -1,4 +1,6 @@
 (function () {
+  const session = window.JorlanAdminSession;
+  if (session.isLocked()) return;
   const cfg = window.JORLAN_TRAINING_CONFIG || window.APP_CONFIG || {};
   const tokenKey = 'jorlan_admin_session_token';
   const profileKey = 'jorlan_admin_profile';
@@ -24,10 +26,10 @@
   function feedback(el, type, msg) { if (!el) return; el.className = 'feedback show ' + type; el.textContent = msg; }
   function clearFeedback(el) { if (!el) return; el.className = 'feedback'; el.textContent = ''; }
   function warn(msg) { if (!els.agendaWarning) return; els.agendaWarning.className = msg ? 'notice show' : 'notice'; els.agendaWarning.textContent = msg || ''; }
-  async function rpc(name, payload) { const { data, error } = await sb.rpc(name, payload); if (error) throw error; return data; }
+  async function rpc(name, payload) { return session.rpc(sb, name, payload); }
   async function rpcTry(names, payload) {
     let last;
-    for (const name of names) { try { return await rpc(name, payload); } catch (e) { last = e; if (!String(e.message || '').includes('function')) throw e; } }
+    for (const name of names) { try { return await rpc(name, payload); } catch (e) { last = e; if (!['PGRST202', '42883'].includes(e.code)) throw e; } }
     throw last || new Error('Função não encontrada.');
   }
   function parseData(data) { if (typeof data === 'string') { try { return JSON.parse(data); } catch (_) { return data; } } return data; }
@@ -100,17 +102,6 @@
     return { raw:s, id:s.id || s.slot_id, date:normDate(s.date || s.slot_date || s.slotDate), time:normTime(s.time || s.slot_time || s.slotTime), blocked:Boolean(s.blocked ?? s.is_blocked ?? s.locked ?? false), capacity, booked, available, bookings };
   }
   async function bootstrap() {
-    const params = new URLSearchParams(location.search);
-    if (!state.sessionToken && params.get('username') && params.get('password')) {
-      const data = await rpc('training_admin_login', { p_username: params.get('username'), p_password: params.get('password') });
-      const payload = Array.isArray(data) ? data[0] : data;
-      if (payload && payload.session_token) {
-        state.sessionToken = payload.session_token;
-        localStorage.setItem(tokenKey, state.sessionToken);
-        localStorage.setItem(profileKey, JSON.stringify(payload));
-        history.replaceState({}, document.title, location.pathname);
-      }
-    }
     if (!state.sessionToken) { location.href = 'index.html'; return; }
     bindEvents();
     await loadProfile();
@@ -134,10 +125,9 @@
       state.slots = (data.slots || data.agenda || data.turmas || []).map(normalizeSlot).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
       renderAgenda();
     } catch (e) {
-      console.error(e);
       feedback(els.agendaFeedback, 'error', e.message || 'Não foi possível carregar a agenda.');
-      warn('Se a mensagem mencionar sessão ou função inexistente, rode o SQL de compatibilidade do pacote.');
-      els.agendaGrid.innerHTML = '<div class="card empty">Agenda não carregada. Verifique se as funções antigas da agenda ainda existem no Supabase.</div>';
+      warn('Tente atualizar o painel. Se o problema continuar, entre em contato com o responsável pelo treinamento.');
+      els.agendaGrid.innerHTML = '<div class="card empty">Agenda não carregada. Tente atualizar o painel.</div>';
     }
   }
   function renderAgenda() {
@@ -152,7 +142,7 @@
     if (!slots.length) { els.agendaGrid.innerHTML = '<div class="card empty">Nenhuma turma encontrada nesta semana. Use Voltar -1 semana ou Mostrar +1 semana para navegar sem perder histórico.</div>'; return; }
     els.agendaGrid.innerHTML = slots.map(s => `
       <article class="card slot-card">
-        <div class="slot-top"><div><div class="slot-title">${fmtDate(s.date)} • ${escapeHtml(s.time)}</div><div class="slot-sub">${s.booked}/${s.capacity} inscritos • ${s.available} vagas</div></div><span class="pill-status ${s.blocked?'inactive':'active'}">${s.blocked?'Bloqueada':'Aberta'}</span></div>
+        <div class="slot-top"><div><div class="slot-title">${escapeHtml(fmtDate(s.date))} • ${escapeHtml(s.time)}</div><div class="slot-sub">${s.booked}/${s.capacity} inscritos • ${s.available} vagas</div></div><span class="pill-status ${s.blocked?'inactive':'active'}">${s.blocked?'Bloqueada':'Aberta'}</span></div>
         <div class="slot-metrics"><div class="mini"><strong>${s.capacity}</strong><span>capacidade</span></div><div class="mini"><strong>${s.booked}</strong><span>inscritos</span></div><div class="mini"><strong>${s.available}</strong><span>vagas</span></div></div>
         <button class="btn small ${s.blocked?'success':'danger'}" type="button" data-slot-toggle="${escapeHtml(s.id)}" data-blocked="${s.blocked?'true':'false'}">${s.blocked?'Habilitar turma':'Desabilitar turma'}</button>
         <div class="participant-list">${s.bookings.length ? s.bookings.map(b=>`<div class="participant"><div><strong>${escapeHtml(bookingName(b))}</strong><small>${escapeHtml(bookingRole(b))} • ${escapeHtml(bookingStore(b))} • ${escapeHtml(bookingCity(b))}</small></div><small>${escapeHtml([bookingEmail(b),bookingPhone(b)].filter(Boolean).join(' • '))}</small></div>`).join('') : '<div class="empty" style="padding:10px 0">Sem inscritos nesta turma.</div>'}</div>
@@ -214,12 +204,12 @@
   async function deleteUser(id){ try{ await rpc('training_admin_delete_user',{p_session_token:state.sessionToken,p_user_id:id}); feedback(els.tableFeedback,'success','Usuário excluído.'); await loadUsers(); }catch(e){ feedback(els.tableFeedback,'error',e.message||'Erro ao excluir usuário.'); } }
   function bindEvents(){
     document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');$('panel-'+btn.dataset.tab).classList.add('active');}));
-    els.logout.addEventListener('click',()=>{localStorage.removeItem(tokenKey);sessionStorage.removeItem(tokenKey);localStorage.removeItem(profileKey);location.href='index.html';});
+    els.logout.addEventListener('click', () => session.logout(sb));
     els.refreshAgenda.addEventListener('click',loadAgenda); if (els.prevWeek) els.prevWeek.addEventListener('click',prevWeek); els.extendWeek.addEventListener('click',extendWeek); els.exportCsv.addEventListener('click',exportCsv);
     els.agendaGrid.addEventListener('click',e=>{const b=e.target.closest('button[data-slot-toggle]'); if(b) toggleSlot(b.dataset.slotToggle,b.dataset.blocked==='true');});
     els.search.addEventListener('input',applyUserFilters); els.filterStatus.addEventListener('change',applyUserFilters); els.filterTier.addEventListener('change',applyUserFilters);
     els.createForm.addEventListener('submit',createUser); els.closeModal.addEventListener('click',closeEdit); els.modal.addEventListener('click',e=>{if(e.target===els.modal)closeEdit();}); els.editForm.addEventListener('submit',saveEdit);
     els.tableBody.addEventListener('click',async e=>{const b=e.target.closest('button[data-user-action]'); if(!b)return; const u=findUser(b.dataset.id); if(!u)return; if(b.dataset.userAction==='edit')return openEdit(u); if(b.dataset.userAction==='premium')return updateUser(u.id,{p_account_tier:String(u.account_tier||'standard').toLowerCase()==='premium'?'standard':'premium'},'Plano atualizado.'); if(b.dataset.userAction==='toggle')return updateUser(u.id,{p_is_active:!u.is_active},'Status atualizado.'); if(b.dataset.userAction==='delete'){if(confirm('Excluir este usuário?')) await deleteUser(u.id);}});
   }
-  bootstrap().catch(e=>{console.error(e); alert('Sessão inválida. Faça login novamente.'); location.href='index.html';});
+  bootstrap().catch(() => { if (!session.isLocked()) { alert('Sessão inválida. Faça login novamente.'); location.href='index.html'; } });
 })();

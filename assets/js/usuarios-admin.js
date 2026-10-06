@@ -1,4 +1,6 @@
 (function () {
+  const session = window.JorlanAdminSession;
+  if (session.isLocked()) return;
   const cfg = window.JORLAN_TRAINING_CONFIG || window.APP_CONFIG || {};
   const tokenKey = 'jorlan_admin_session_token';
   const profileKey = 'jorlan_admin_profile';
@@ -13,7 +15,7 @@
   function feedback(target,type,message){ if(!target)return; target.className='feedback show '+type; target.textContent=message; }
   function clear(target){ if(!target)return; target.className='feedback'; target.textContent=''; }
   function esc(t){ return String(t??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
-  async function rpc(name,payload){ const {data,error}=await sb.rpc(name,payload); if(error)throw error; return data; }
+  async function rpc(name,payload){ return session.rpc(sb,name,payload); }
   async function bootstrap(){ if(!els.tableBody || !state.sessionToken)return; style(); await loadCurrentAdmin(); await loadUsers(); bindEvents(); }
   async function loadCurrentAdmin(){ try{ const data=await rpc('training_admin_session_profile',{p_session_token:state.sessionToken}); state.currentAdmin=Array.isArray(data)?data[0]:data; }catch(_){ try{state.currentAdmin=JSON.parse(localStorage.getItem(profileKey)||'null')}catch(e){} } if(els.badge){ const n=state.currentAdmin?.display_name||state.currentAdmin?.admin_display_name||state.currentAdmin?.username||'Administrador'; const r=state.currentAdmin?.role||state.currentAdmin?.admin_role||'Administrador'; els.badge.textContent=n+' • '+r; } }
   async function loadUsers(){ clear(els.tableFeedback); try{ const data=await rpc('training_admin_list_users',{p_session_token:state.sessionToken}); state.users=Array.isArray(data)?data:[]; applyFilters(); updateStats(); }catch(e){ feedback(els.tableFeedback,'error',e.message||'Não foi possível carregar usuários.'); if(els.tableBody)els.tableBody.innerHTML='<tr><td colspan="6" class="empty">Não foi possível carregar os usuários.</td></tr>'; } }

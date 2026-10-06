@@ -1,6 +1,8 @@
 (function () {
   "use strict";
 
+  const session = window.JorlanAdminSession;
+  if (session.isLocked()) return;
   const cfg = window.JORLAN_TRAINING_CONFIG || window.APP_CONFIG || {};
   const tokenKeys = ["jorlan_admin_session_token", "jorlanTrainingAdminToken"];
   const supabaseLib = window.supabase;
@@ -26,9 +28,7 @@
   async function rpc(name, payload) {
     const client = getClient();
     if (!client) throw new Error("Supabase não configurado.");
-    const { data, error } = await client.rpc(name, payload || {});
-    if (error) throw new Error(error.message || "Erro na comunicação com o banco.");
-    return data;
+    return session.rpc(client, name, payload);
   }
 
   function escapeHtml(text) {
@@ -345,7 +345,7 @@
     const grid = document.getElementById("agenda-grid");
     if (!grid || !getToken() || !getClient()) return;
     addRefreshManagersButton();
-    try { await loadAdminState(); } catch (error) { console.warn("Não foi possível carregar estado administrativo para edição de agendamentos:", error); return; }
+    try { await loadAdminState(); } catch (error) { return; }
 
     document.querySelectorAll(".slot-card").forEach((card) => {
       const slot = findSlotByCard(card);
@@ -403,6 +403,7 @@
   }
 
   function init() {
+    if (session.isLocked()) return;
     if (!document.getElementById("agenda-grid")) return;
     injectStyles();
     ensureModal();

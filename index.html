@@ -125,6 +125,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/config.js"></script>
+<script src="assets/js/admin-session.js"></script>
   <script>
     (function() {
       const form = document.getElementById('admin-login-form');
@@ -153,14 +154,15 @@
           showError('Preencha usuário e senha.');
           return;
         }
+        if (window.JorlanAdminSession.isLocked()) return;
         try {
           const supabase = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
-          const { data, error } = await supabase.rpc('training_admin_login', { p_username: username, p_password: password });
-          if (error) throw error;
+          const data = await window.JorlanAdminSession.rpc(supabase, 'training_admin_login', { p_username: username, p_password: password });
           const payload = Array.isArray(data) ? data[0] : data;
           if (!payload || !payload.session_token) throw new Error('Login inválido.');
           localStorage.setItem('jorlan_admin_session_token', payload.session_token);
-          localStorage.setItem('jorlan_admin_profile', JSON.stringify(payload));
+          const { session_token: sessionToken, ...profile } = payload;
+          localStorage.setItem('jorlan_admin_profile', JSON.stringify(profile));
           window.location.href = 'painel-administrador.html';
         } catch (err) {
           showError(err?.message || 'Não foi possível entrar no painel.');

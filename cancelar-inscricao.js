@@ -17,11 +17,31 @@
     return new Date(y, m - 1, d).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
   }
 
-  function show(type, html) {
+  function show(type, message) {
     const box = $("cancelAlert");
     if (!box) return;
     box.className = "alert show " + type;
-    box.innerHTML = html;
+    box.textContent = message;
+  }
+
+  function renderDetails(details, data) {
+    const rows = [
+      ["Participante", data.name],
+      ["Turma", `${formatDate(data.slot_date)} às ${data.slot_time || "-"}`],
+      ["Loja", data.store || "-"],
+      ["E-mail", data.email]
+    ];
+    details.replaceChildren();
+    rows.forEach(([label, value]) => {
+      const row = document.createElement("div");
+      row.className = "detail";
+      const title = document.createElement("span");
+      title.textContent = label;
+      const content = document.createElement("strong");
+      content.textContent = value == null ? "-" : String(value);
+      row.append(title, content);
+      details.appendChild(row);
+    });
   }
 
   async function rpc(name, params) {
@@ -36,6 +56,8 @@
     const token = new URLSearchParams(window.location.search).get("token") || "";
     const details = $("bookingDetails");
     const button = $("cancelButton");
+    // A failed load must never leave an enabled cancellation action.
+    if (button) { button.disabled = true; button.style.display = "none"; }
 
     if (!token) {
       show("error", "Link inválido. Solicite orientação ao responsável pelo treinamento.");
@@ -52,12 +74,7 @@
       }
 
       if (details) {
-        details.innerHTML = `
-          <div class="detail"><span>Participante</span><strong>${data.name}</strong></div>
-          <div class="detail"><span>Turma</span><strong>${formatDate(data.slot_date)} às ${data.slot_time}</strong></div>
-          <div class="detail"><span>Loja</span><strong>${data.store || "-"}</strong></div>
-          <div class="detail"><span>E-mail</span><strong>${data.email}</strong></div>
-        `;
+        renderDetails(details, data);
       }
 
       if (data.cancelled_at) {
@@ -67,14 +84,19 @@
       }
 
       if (!data.can_cancel) {
-        show("error", "O cancelamento pelo site só é permitido até 24 horas antes do treinamento.<br><br>Para tratar este caso, envie e-mail para <strong>luis.marques@grupojorlan.com</strong> ou <strong>guilherme.mendes@grupojorlan.com</strong>.");
+        show("error", "O cancelamento pelo site só é permitido até 24 horas antes do treinamento. Para tratar este caso, envie e-mail para luis.marques@grupojorlan.com ou guilherme.mendes@grupojorlan.com.");
         if (button) button.style.display = "none";
         return;
       }
 
       if (button) {
+        let cancelling = false;
+        button.disabled = false;
+        button.style.display = "";
         button.onclick = async function () {
+          if (cancelling) return;
           if (!window.confirm("Confirma o cancelamento desta inscrição?")) return;
+          cancelling = true;
           button.disabled = true;
           button.textContent = "Cancelando...";
           try {
@@ -85,11 +107,13 @@
             } else {
               show("error", result && result.message ? result.message : "Não foi possível cancelar.");
               button.disabled = false;
+              cancelling = false;
               button.textContent = "Confirmar cancelamento";
             }
           } catch (error) {
             show("error", error.message || "Erro ao cancelar inscrição.");
             button.disabled = false;
+            cancelling = false;
             button.textContent = "Confirmar cancelamento";
           }
         };
